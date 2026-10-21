@@ -229,6 +229,25 @@
 
     // ---------- pens ----------
 
+    // Soft glow on the desk under the pen whose turn it is, in that pen's colour.
+    const glowTex = canvasTexture(256, 64, (g, w, h) => {
+      const grad = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+      grad.addColorStop(0, 'rgba(255,255,255,0.95)');
+      grad.addColorStop(0.55, 'rgba(255,255,255,0.45)');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      g.setTransform(1, 0, 0, h / w, 0, 0);
+      g.fillStyle = grad;
+      g.fillRect(0, 0, w, w);
+    });
+    const marker = new T.Mesh(
+      new T.PlaneGeometry(1, 1),
+      new T.MeshBasicMaterial({ map: glowTex, transparent: true, depthWrite: false, color: '#ffffff' })
+    );
+    marker.rotation.order = 'YXZ';
+    marker.renderOrder = 1;
+    marker.visible = false;
+    scene.add(marker);
+
     const views = [];
     function penView(i, pen) {
       const info = penInfo(i);
@@ -410,6 +429,17 @@
       },
 
       render(pens, glowOwner, now) {
+        const turnPen = pens[glowOwner];
+        marker.visible = !!turnPen && !turnPen.out;
+        if (marker.visible) {
+          const [mx, mz] = toScene(turnPen.x, turnPen.y);
+          const info = penInfo(glowOwner);
+          marker.material.color.set(info ? info.colour : '#f0b429');
+          marker.material.opacity = 0.55 + 0.3 * Math.sin(now / 220);
+          marker.position.set(mx, 0.003, mz);
+          marker.scale.set(turnPen.len * S * 1.45, turnPen.r * S * 9, 1);
+          marker.rotation.set(-Math.PI / 2, -turnPen.a, 0);
+        }
         const dt = Math.min(0.1, Math.max(0, (now - lastNow) / 1000));
         lastNow = now;
         const goal = pens.some((p) => p.out) ? 1 : 0;

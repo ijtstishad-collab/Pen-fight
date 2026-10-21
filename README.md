@@ -1,7 +1,20 @@
 # Pen Fight
 
 A flick-pen duel on a school desk, in the browser. Flick your pen, knock the other pen off the desk, keep yours on.
-Play the computer (easy / normal / hard) or a friend on the same device.
+Play the computer or a friend on the same device. The three computer opponents play differently, not just more
+accurately:
+
+| Opponent | Plays like | Wins vs a casual player* |
+| --- | --- | --- |
+| 🐣 Rookie (Easy) | Timid, wobbly aim, often skips the best shot | ~26% |
+| 🦊 Ace (Normal) | Solid aim, the odd slip | ~58% |
+| 🐉 Champion (Hard) | Near-perfect aim and looks one move ahead: avoids shots that leave its pen exposed | ~86% |
+
+\*Measured in simulation against a stand-in "casual human"; a test keeps Hard well ahead of Easy. Each opponent has
+its own aiming pace and lines in the top bar and on the result card.
+
+**Friend mode** shows a "your turn" card with the player's name and pen at every handover, and a glow marks the pen
+to flick. Pens are easy to grab with a finger: the grab area is measured on screen, extra generous for touch.
 
 The desk and pens are rendered in 3D (three.js): each pen is a modelled barrel wrapped in its real artwork, with its
 clip, lighting and shadows, and knocked-off pens tumble to the floor. Browsers without WebGL get the flat 2D view,
@@ -44,8 +57,9 @@ large. Drag to spin it any way, scroll or pinch to zoom, double-click to reset (
 bounce are now tuned so a round lasts about 7 flicks on average (13% one-shot), which a test keeps in check.
 
 **Play styles and pen stats.** Choosing a pen works like picking a class in a game. First pick a play style, then
-one of that style's pen lines, then a colour. Not sure? **✨ Find my style** asks three quick questions and
-recommends a style and its signature pen.
+one of that style's pen lines, then a colour. Not sure? **✨ Find my style** asks five questions drawn at random
+from a pool of ten school-life scenarios (answers shuffled), then shows your style mix as percentages and recommends
+that style's signature pen.
 
 | Style | Lead stat | Pens | Plays like |
 | --- | --- | --- | --- |

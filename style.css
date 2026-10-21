@@ -1572,3 +1572,152 @@ legend {
     aspect-ratio: 1;
   }
 }
+
+/* ---------- same-device handoff, mode blurb ---------- */
+
+.handoff {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 4;
+  width: min(360px, calc(100% - 32px));
+  padding: 16px 18px;
+  border-radius: 18px;
+  border-top: 6px solid var(--pen);
+  background: var(--card);
+  color: var(--card-ink);
+  text-align: center;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: handoff-in 0.3s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.handoff[hidden] {
+  display: none;
+}
+
+.handoff.leaving {
+  animation: vs-out 0.3s ease-in both;
+}
+
+.handoff-who {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 900;
+}
+
+.handoff-what {
+  margin: 2px 0 8px;
+  color: #6b5a43;
+}
+
+.handoff img {
+  display: block;
+  width: 100%;
+  filter: drop-shadow(2px 4px 3px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes handoff-in {
+  from {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+  }
+}
+
+.mode-blurb {
+  margin: 8px 0 0;
+  font-size: 0.88rem;
+  color: #4d3f2c;
+}
+
+/* Dialogs taller than the screen scroll from the top instead of being cut off. */
+.overlay,
+.sheet,
+.quiz,
+.viewer,
+.ad {
+  align-items: start;
+}
+
+.overlay > *,
+.sheet > *,
+.quiz > *,
+.viewer > *,
+.ad > * {
+  margin-block: auto;
+}
+
+/* ---------- quiz extras ---------- */
+
+.quiz-options button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quiz-emoji {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #f4eedf;
+  font-size: 1.35rem;
+}
+
+.quiz-mix {
+  display: grid;
+  gap: 4px;
+  margin: 4px auto 12px;
+  max-width: 360px;
+  text-align: left;
+}
+
+.quiz-mix-row {
+  display: grid;
+  grid-template-columns: 8.5em 1fr 2.6em;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.quiz-mix-row b {
+  text-align: right;
+}
+
+.quiz-mix-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: #eee4d2;
+  overflow: hidden;
+}
+
+.quiz-mix-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+/* Long turn lines (opponent taunts) shrink with an ellipsis instead of pushing the top bar off screen. */
+.hud {
+  grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr) auto;
+}
+
+.turn {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 520px) {
+  #fullscreen-button {
+    display: none;
+  }
+  .hud {
+    gap: 6px;
+  }
+}

@@ -73,36 +73,109 @@
     ['spin', 'Spin'],
   ];
 
-  // "Find my style" quiz: each answer scores one style.
+  // "Find my style" quiz: a pool of questions; each answer scores one style. Five are asked at random.
   const QUIZ = [
     {
-      q: "Your rival's pen is across the desk. You…",
+      q: "Exam starts in 2 minutes and you can't find your pen. You…",
       a: [
-        ['Rocket over at full speed', 'speedster'],
-        ['Barge into it and shove it off', 'powerhouse'],
-        ['Line up the perfect angle first', 'precision'],
-        ['Curve in a sneaky hook shot', 'trickster'],
+        ['🏃', 'Sprint to the stationery shop and back', 'speedster'],
+        ['💪', 'Borrow the biggest pen in the room', 'powerhouse'],
+        ['🎒', 'You never lose your pen. It is in pocket 3.', 'precision'],
+        ['🪄', 'Pull a spare from behind your ear', 'trickster'],
       ],
     },
     {
-      q: 'The best feeling in a game is…',
+      q: 'Pick a superpower for one day:',
       a: [
-        ['Getting there first', 'speedster'],
-        ['Being impossible to stop', 'powerhouse'],
-        ['Never making a mistake', 'precision'],
-        ['Pulling off something nobody expected', 'trickster'],
+        ['⚡', 'Super speed', 'speedster'],
+        ['🦾', 'Super strength', 'powerhouse'],
+        ['🔭', 'Perfect aim', 'precision'],
+        ['🌀', 'Bend things with your mind', 'trickster'],
       ],
     },
     {
-      q: 'Pick a sports move:',
+      q: "A friend borrows your pen and doesn't give it back. You…",
       a: [
-        ['100 m sprint finish', 'speedster'],
-        ['Rugby tackle', 'powerhouse'],
-        ['Golf putt', 'precision'],
-        ['Curling free kick', 'trickster'],
+        ['💨', 'Snatch it back before they notice', 'speedster'],
+        ['😤', 'Walk over and demand it, loudly', 'powerhouse'],
+        ['📝', 'You wrote your name on it. Case closed.', 'precision'],
+        ['😏', 'Swap it for a pen that has run out', 'trickster'],
+      ],
+    },
+    {
+      q: 'Your handwriting is…',
+      a: [
+        ['🏎️', 'Fast. Readable? Sometimes.', 'speedster'],
+        ['🖊️', 'Bold and pressed hard into the page', 'powerhouse'],
+        ['📏', 'Neat enough to frame', 'precision'],
+        ['🎨', 'Loops, swirls and doodles everywhere', 'trickster'],
+      ],
+    },
+    {
+      q: 'Cricket match at lunch. You are the…',
+      a: [
+        ['🏃', 'Fast bowler', 'speedster'],
+        ['🏏', 'Big-hitting batter', 'powerhouse'],
+        ['🧤', 'Wicketkeeper who never drops a catch', 'precision'],
+        ['🌪️', 'Spin bowler nobody can read', 'trickster'],
+      ],
+    },
+    {
+      q: 'Your rival’s pen is right in the middle of the desk. You…',
+      a: [
+        ['🚀', 'Fire across at full speed', 'speedster'],
+        ['🐘', 'Barge in and shove it off', 'powerhouse'],
+        ['🎯', 'Wait for the perfect angle', 'precision'],
+        ['🔄', 'Curve in a hook shot from the side', 'trickster'],
+      ],
+    },
+    {
+      q: 'Pick a snack for the tiffin break:',
+      a: [
+        ['🍫', 'Chocolate: instant energy', 'speedster'],
+        ['🍛', 'A full plate of biryani', 'powerhouse'],
+        ['🍎', 'An apple, cut into equal slices', 'precision'],
+        ['🍬', 'A mystery sweet with a surprise filling', 'trickster'],
+      ],
+    },
+    {
+      q: 'Homework is due tomorrow. You…',
+      a: [
+        ['⏱️', 'Finish it in 10 minutes flat', 'speedster'],
+        ['📚', 'Power through every single question', 'powerhouse'],
+        ['✅', 'Did it last week, double-checked', 'precision'],
+        ['💡', 'Find a clever shortcut nobody thought of', 'trickster'],
+      ],
+    },
+    {
+      q: 'Which game would you rather win?',
+      a: [
+        ['🏁', 'A race', 'speedster'],
+        ['🤼', 'A tug of war', 'powerhouse'],
+        ['🎳', 'A perfect bowling strike', 'precision'],
+        ['🃏', 'A magic trick contest', 'trickster'],
+      ],
+    },
+    {
+      q: 'Your friends describe you as…',
+      a: [
+        ['⚡', 'Always first, always in a hurry', 'speedster'],
+        ['🛡️', 'The strong one nobody messes with', 'powerhouse'],
+        ['🧠', 'Careful, calm, never wrong', 'precision'],
+        ['🎭', 'Full of surprises', 'trickster'],
       ],
     },
   ];
+  const QUIZ_LENGTH = 5;
+
+  // Share of answers per style, highest first: [[style, 0.6], [style, 0.2], ...].
+  function quizBreakdown(answers) {
+    const tally = {};
+    for (const s of answers) tally[s] = (tally[s] || 0) + 1;
+    return Object.entries(tally)
+      .map(([s, n]) => [s, n / answers.length])
+      .sort((a, b) => b[1] - a[1]);
+  }
 
   // Most-picked style wins; a tie at the top means you like a bit of everything.
   function quizResult(answers) {
@@ -113,7 +186,7 @@
     return top.length === 1 ? top[0] : 'allrounder';
   }
 
-  const api = { STYLES, PEN_STATS, STAT_NAMES, QUIZ, quizResult };
+  const api = { STYLES, PEN_STATS, STAT_NAMES, QUIZ, QUIZ_LENGTH, quizResult, quizBreakdown };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else Object.assign(root, api);
 })(typeof window !== 'undefined' ? window : globalThis);

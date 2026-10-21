@@ -52,11 +52,12 @@
             <fieldset>
               <legend>Opponent</legend>
               <div class="choices" id="mode-choices">
-                <button type="button" data-mode="easy">Computer · Easy</button>
-                <button type="button" data-mode="normal" class="selected">Computer · Normal</button>
-                <button type="button" data-mode="hard">Computer · Hard</button>
-                <button type="button" data-mode="friend">Friend (same device)</button>
+                <button type="button" data-mode="easy">🐣 Rookie · Easy</button>
+                <button type="button" data-mode="normal" class="selected">🦊 Ace · Normal</button>
+                <button type="button" data-mode="hard">🐉 Champion · Hard</button>
+                <button type="button" data-mode="friend">👥 Friend (same device)</button>
               </div>
+              <p id="mode-blurb" class="mode-blurb"></p>
             </fieldset>
             <fieldset>
               <legend>Match</legend>
@@ -104,6 +105,8 @@
           </div>
         </div>
       </section>
+
+      <div id="handoff" class="handoff" aria-live="polite" hidden></div>
 
       <section id="versus" class="versus" hidden aria-live="polite">
         <div class="vs-side" data-player="0"></div>

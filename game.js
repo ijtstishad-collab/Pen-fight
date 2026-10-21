@@ -265,6 +265,17 @@
     const dlg = el('quiz');
     const body = el('quiz-body');
     const answers = [];
+    let questions = [];
+    const shuffle = (list) => {
+      const a = list.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    };
+    // A fresh random set of questions each time, answers in random order.
+    const deal = () => (questions = shuffle(window.QUIZ).slice(0, window.QUIZ_LENGTH || 5));
 
     function close() {
       dlg.hidden = true;
@@ -278,21 +289,25 @@
     }
 
     function ask(n) {
-      const item = window.QUIZ[n];
+      const item = questions[n];
       const head = document.createElement('div');
       head.className = 'quiz-step';
-      head.innerHTML = `<span>Question ${n + 1} of ${window.QUIZ.length}</span><span class="quiz-dots">${window.QUIZ.map((_, i) => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</span>`;
+      head.innerHTML = `<span>Question ${n + 1} of ${questions.length}</span><span class="quiz-dots">${questions.map((_, i) => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</span>`;
       const q = document.createElement('h2');
       q.textContent = item.q;
       const opts = document.createElement('div');
       opts.className = 'quiz-options';
-      for (const [text, style] of item.a) {
+      for (const [emoji, text, style] of shuffle(item.a)) {
         const b = document.createElement('button');
         b.type = 'button';
-        b.textContent = text;
+        const icon = document.createElement('span');
+        icon.className = 'quiz-emoji';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = emoji;
+        b.append(icon, text);
         b.onclick = () => {
           answers.push(style);
-          if (n + 1 < window.QUIZ.length) ask(n + 1);
+          if (n + 1 < questions.length) ask(n + 1);
           else reveal(window.quizResult(answers));
         };
         opts.append(b);
@@ -313,6 +328,10 @@
       card.innerHTML = `<p class="quiz-kicker">Your style is</p>
         <div class="quiz-style"><span class="style-icon">${style.icon}</span><h2>${style.name}</h2></div>
         <p>${style.blurb}</p>
+        <div class="quiz-mix">${window
+          .quizBreakdown(answers)
+          .map(([k, share]) => `<div class="quiz-mix-row"><span>${STYLES[k].icon} ${STYLES[k].name}</span><span class="quiz-mix-bar"><i style="width:${share * 100}%;background:${STYLES[k].colour}"></i></span><b>${Math.round(share * 100)}%</b></div>`)
+          .join('')}</div>
         <p class="quiz-kicker">Your pen</p>
         <img src="${info.src}" alt="" />
         <h3><span>Fresh</span> ${LINES[line].name}</h3>`;
@@ -333,6 +352,7 @@
       again.textContent = 'Retake';
       again.onclick = () => {
         answers.length = 0;
+        deal();
         ask(0);
       };
       actions.append(use, again);
@@ -345,6 +365,7 @@
     el('quiz-close').onclick = close;
     document.addEventListener('keydown', onKey, true);
     dlg.hidden = false;
+    deal();
     ask(0);
   }
 
@@ -367,7 +388,10 @@
     renderPicker(0);
     if (friend) renderPicker(1);
     ui.name[0].textContent = playerName(0);
-    ui.name[1].textContent = playerName(1);
+    const opp = game.mode !== 'friend' && opponent();
+    ui.name[1].textContent = (opp ? `${opp.avatar} ` : '') + playerName(1);
+    const blurb = el('mode-blurb');
+    if (blurb) blurb.textContent = opp ? `${opp.avatar} ${opp.name}: ${opp.blurb}` : 'Two players take turns on this device. Pass it over when your turn ends.';
   }
 
   let r3d = null; // 3D view, when WebGL is available
@@ -434,6 +458,42 @@
 
   // ---------- flow ----------
 
+  // Computer opponents: each level has its own name, pace and lines.
+  const OPPONENTS = {
+    easy: {
+      name: 'Rookie',
+      avatar: '🐣',
+      blurb: 'Still learning. Timid, wobbly flicks and plenty of mistakes.',
+      aimMs: 1200,
+      wobble: 0.35,
+      aiming: ['Um… which end do I hold?', 'Here goes nothing!', 'Eyes closed… go!'],
+      wins: ['Wait, I won?!', 'Beginner’s luck!'],
+      loses: ['Ouch. Teach me that one?', 'I’ll get you next time!'],
+    },
+    normal: {
+      name: 'Ace',
+      avatar: '🦊',
+      blurb: 'A fair fight. Solid aim, the odd slip.',
+      aimMs: 850,
+      wobble: 0.12,
+      aiming: ['Lining it up…', 'Steady…', 'Let’s see you dodge this.'],
+      wins: ['Nice try!', 'Better luck next round.'],
+      loses: ['Good shot!', 'Okay, you got me.'],
+    },
+    hard: {
+      name: 'Champion',
+      avatar: '🐉',
+      blurb: 'Plays one move ahead and never leaves itself open. Bring your best.',
+      aimMs: 550,
+      wobble: 0,
+      aiming: ['Calculated.', 'Watch and learn.', 'Edge of the desk. Again.'],
+      wins: ['Too easy.', 'The desk is mine.'],
+      loses: ['Impressive. That rarely happens.', 'Rematch. Now.'],
+    },
+  };
+  const pickLine = (lines) => lines[Math.floor(Math.random() * lines.length)];
+  const opponent = () => OPPONENTS[game.mode] || null;
+
   function profile() {
     return window.PenProfileUI ? window.PenProfileUI.active() : null;
   }
@@ -441,13 +501,16 @@
   function playerName(i) {
     const p = profile();
     if (game.mode === 'friend') return i === 0 && p ? p.name : LINES.length ? `Player ${i + 1}` : COLORS[i].name;
-    return i === 0 ? (p ? p.name : 'You') : 'Computer';
+    return i === 0 ? (p ? p.name : 'You') : (opponent() || { name: 'Computer' }).name;
   }
 
   function showNames() {
     const p = profile();
     ui.name[0].textContent = (p ? `${p.avatar} ` : '') + playerName(0);
-    ui.name[1].textContent = playerName(1);
+    const opp = game.mode !== 'friend' && opponent();
+    ui.name[1].textContent = (opp ? `${opp.avatar} ` : '') + playerName(1);
+    const blurb = el('mode-blurb');
+    if (blurb) blurb.textContent = opp ? `${opp.avatar} ${opp.name}: ${opp.blurb}` : 'Two players take turns on this device. Pass it over when your turn ends.';
   }
 
   // A lost match pays its small "played" reward only once the player moves on,
@@ -559,11 +622,44 @@
     if (isHuman(game.current)) {
       game.state = 'aim';
       setTurn(game.mode === 'friend' ? `${playerName(game.current)}'s turn` : 'Your turn');
+      if (game.mode === 'friend') showHandoff(game.current);
     } else {
       game.state = 'ai';
-      setTurn('Computer is aiming…');
+      const opp = opponent();
+      setTurn(opp ? `${opp.avatar} “${pickLine(opp.aiming)}”` : 'Computer is aiming…');
       setTimeout(runAI, 350);
     }
+  }
+
+  // Same-device play: a big "pass it over" banner so both players always know whose turn it is.
+  let handoffTimer = null;
+  function showHandoff(player) {
+    const box = el('handoff');
+    if (!box) return;
+    const info = penInfo(player);
+    const p = profile();
+    const who = document.createElement('p');
+    who.className = 'handoff-who';
+    who.textContent = `${player === 0 && p ? p.avatar + ' ' : ''}${playerName(player)}`;
+    const what = document.createElement('p');
+    what.className = 'handoff-what';
+    what.textContent = 'Your turn! Flick this pen:';
+    const kids = [who, what];
+    if (info) {
+      const img = document.createElement('img');
+      img.src = info.src;
+      img.alt = '';
+      kids.push(img);
+    }
+    box.replaceChildren(...kids);
+    box.style.setProperty('--pen', info ? info.colour : '#f0b429');
+    box.hidden = false;
+    box.classList.remove('leaving');
+    clearTimeout(handoffTimer);
+    handoffTimer = setTimeout(() => {
+      box.classList.add('leaving');
+      handoffTimer = setTimeout(() => (box.hidden = true), 300);
+    }, 1500);
   }
 
   function runAI() {
@@ -571,13 +667,14 @@
     const me = game.current;
     const shot = AI.chooseShot(game.pens, me, game.mode);
     const pen = game.pens[me];
-    // Show the aim briefly so the human can see what's coming.
-    game.aiAim = { shot, start: performance.now(), dur: 700 };
+    // Show the aim so the human can see what's coming: slow and shaky for the Rookie, snappy for the Champion.
+    const opp = opponent() || { aimMs: 700, wobble: 0 };
+    game.aiAim = { shot, start: performance.now(), dur: opp.aimMs, wobble: opp.wobble };
     setTimeout(() => {
       if (game.state !== 'ai') return;
       game.aiAim = null;
       shoot(pen, shot.s, shot.dx, shot.dy, shot.power);
-    }, 700);
+    }, opp.aimMs);
   }
 
   function shoot(pen, s, dx, dy, power) {
@@ -621,10 +718,12 @@
     game.state = 'over';
     const wonByYou = game.mode !== 'friend' && winner === 0;
     let title;
-    if (matchOver) title = game.mode === 'friend' ? `${playerName(winner)} wins the match!` : wonByYou ? 'You win the match!' : 'The computer wins the match';
-    else title = game.mode === 'friend' ? `${playerName(winner)} takes the round` : wonByYou ? 'Round to you' : 'Round to the computer';
+    if (matchOver) title = game.mode === 'friend' ? `${playerName(winner)} wins the match!` : wonByYou ? 'You win the match!' : `${playerName(1)} wins the match`;
+    else title = game.mode === 'friend' ? `${playerName(winner)} takes the round` : wonByYou ? 'Round to you' : `Round to ${playerName(1)}`;
     ui.resultTitle.textContent = title;
-    ui.resultText.textContent = `${reason} Score ${game.scores[0]}–${game.scores[1]}.`;
+    const opp = game.mode !== 'friend' && opponent();
+    const quip = opp ? ` ${opp.avatar} “${pickLine(winner === 1 ? opp.wins : opp.loses)}”` : '';
+    ui.resultText.textContent = `${reason} Score ${game.scores[0]}–${game.scores[1]}.${quip}`;
     // Points: rounds and matches won against the computer.
     const earned = [];
     if (game.mode !== 'friend' && window.PenProfileUI) {
@@ -717,10 +816,21 @@
 
   // ---------- input ----------
 
-  function penAt(pt, pen) {
+  // Is the pointer on (or near enough to) the pen? Measured on screen, so a thin pen on a
+  // small phone is still easy to grab; fingers get a bigger margin than a mouse.
+  function penAt(pt, pen, evt) {
     const e = P.endpoints(pen);
     const cp = P.closestSegments(pt.x, pt.y, pt.x, pt.y + 1e-3, e[0], e[1], e[2], e[3]);
-    return Math.hypot(cp.bx - pt.x, cp.by - pt.y) <= pen.r + GRAB_SLOP;
+    if (Math.hypot(cp.bx - pt.x, cp.by - pt.y) <= pen.r + GRAB_SLOP) return true;
+    if (!evt) return false;
+    const r = canvas.getBoundingClientRect();
+    const sx = evt.clientX - r.left;
+    const sy = evt.clientY - r.top;
+    const a = toScreen(e[0], e[1]);
+    const b = toScreen(e[2], e[3]);
+    const hit = P.closestSegments(sx, sy, sx, sy + 1e-3, a.x, a.y, b.x, b.y);
+    const reach = evt.pointerType === 'touch' ? 34 : 18;
+    return Math.hypot(hit.bx - sx, hit.by - sy) <= reach;
   }
 
   function axisOffset(pen, pt) {
@@ -736,7 +846,7 @@
     if (game.state !== 'aim') return;
     const pt = toWorld(evt);
     const pen = game.pens[game.current];
-    if (!penAt(pt, pen)) return;
+    if (!penAt(pt, pen, evt)) return;
     canvas.setPointerCapture(evt.pointerId);
     game.drag = { id: evt.pointerId, s: axisOffset(pen, pt), cur: pt };
     evt.preventDefault();
@@ -748,7 +858,7 @@
       game.drag.cur = pt;
       return;
     }
-    const over = game.state === 'aim' && penAt(pt, game.pens[game.current]);
+    const over = game.state === 'aim' && penAt(pt, game.pens[game.current], evt);
     canvas.style.cursor = over ? 'grab' : 'default';
   });
 
@@ -800,6 +910,7 @@
   }
   choose('mode-choices', 'mode', (v) => {
     game.mode = v;
+    showNames();
     if (v === 'friend') game.picks[1] = loadPick(1, game.picks[1]);
     renderPickers();
   });
@@ -1101,9 +1212,12 @@
       const power = Math.min(1, Math.hypot(dx, dy) / FULL_PULL);
       if (Math.hypot(dx, dy) >= MIN_PULL) drawAim(pen, game.drag.s, game.drag.cur, power, dx, dy);
     } else if (game.aiAim) {
-      const { shot, start, dur } = game.aiAim;
+      const { shot, start, dur, wobble } = game.aiAim;
       const t = Math.min(1, (now - start) / dur);
-      drawAim(game.pens[game.current], shot.s, null, shot.power * t, shot.dx, shot.dy);
+      // Wobble settles onto the real aim as the shot gets close.
+      const off = wobble ? Math.sin(now / 85) * wobble * (1 - t) : 0;
+      const ang = Math.atan2(shot.dy, shot.dx) + off;
+      drawAim(game.pens[game.current], shot.s, null, shot.power * t, Math.cos(ang), Math.sin(ang));
     }
     if (bits.length) drawConfetti(dt);
   }

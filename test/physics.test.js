@@ -88,3 +88,34 @@ test('rounds last several flicks rather than one knockout shot', () => {
   assert.ok(flicks / rounds >= 4, `average ${flicks / rounds} flicks per round`);
   assert.ok(oneShot <= rounds * 0.34, `${oneShot} of ${rounds} rounds ended on the first flick`);
 });
+
+test('harder computer levels beat a casual player more often', () => {
+  const { DESK } = P;
+  AI.LEVELS.casual = { samples: 25, aimNoise: 0.12, powerNoise: 0.12 };
+  const winRate = (level) => {
+    const rand = seeded(5);
+    let wins = 0;
+    const rounds = 30;
+    for (let r = 0; r < rounds; r++) {
+      const cy = DESK.y + DESK.h / 2;
+      const pens = [
+        P.makePen(DESK.x + DESK.w * 0.3, cy + (rand() - 0.5) * 120, Math.PI / 2, 0),
+        P.makePen(DESK.x + DESK.w * 0.7, cy + (rand() - 0.5) * 120, Math.PI / 2, 1),
+      ];
+      let cur = r % 2;
+      for (let n = 0; n < 30; n++) {
+        const s = AI.chooseShot(pens, cur, cur === 1 ? level : 'casual', rand);
+        P.flick(pens[cur], s.s, s.dx, s.dy, s.power);
+        P.simulate(pens, 12);
+        if (pens[cur].out) { if (cur === 0) wins++; break; }
+        if (pens[1 - cur].out) { if (cur === 1) wins++; break; }
+        cur = 1 - cur;
+      }
+    }
+    return wins / rounds;
+  };
+  const easy = winRate('easy');
+  const hard = winRate('hard');
+  delete AI.LEVELS.casual;
+  assert.ok(hard >= easy + 0.3, `easy ${easy}, hard ${hard}`);
+});

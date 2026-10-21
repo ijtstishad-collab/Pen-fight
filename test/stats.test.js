@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const P = require('../physics.js');
-const { PEN_STATS, STAT_NAMES, STYLES, QUIZ, quizResult } = require('../pen-stats.js');
+const { PEN_STATS, STAT_NAMES, STYLES, QUIZ, quizResult, quizBreakdown } = require('../pen-stats.js');
 
 const lines = JSON.parse(fs.readFileSync(__dirname + '/../pens.js', 'utf8').match(/= (\[.*\]);/s)[1]);
 
@@ -65,7 +65,12 @@ test("each pen's style is led by its strongest stat", () => {
 test('the quiz picks the most-chosen style, or all-rounder on a tie', () => {
   assert.strictEqual(quizResult(['trickster', 'speedster', 'trickster']), 'trickster');
   assert.strictEqual(quizResult(['speedster', 'powerhouse', 'precision']), 'allrounder');
-  for (const q of QUIZ) for (const [, style] of q.a) assert.ok(STYLES[style], style);
+  for (const q of QUIZ) {
+    assert.strictEqual(q.a.length, 4);
+    const styles = q.a.map(([, , style]) => style);
+    for (const style of styles) assert.ok(STYLES[style], style);
+    assert.strictEqual(new Set(styles).size, 4, `each answer to "${q.q}" leads to a different style`);
+  }
 });
 
 test('spin turns off-centre flicks into more rotation', () => {
@@ -75,4 +80,12 @@ test('spin turns off-centre flicks into more rotation', () => {
     return Math.abs(p.w);
   };
   assert.ok(spin(9) > spin(5) * 1.3);
+});
+
+test('the quiz breakdown shows each style\'s share, biggest first', () => {
+  assert.deepStrictEqual(quizBreakdown(['trickster', 'speedster', 'trickster', 'trickster', 'precision']), [
+    ['trickster', 0.6],
+    ['speedster', 0.2],
+    ['precision', 0.2],
+  ]);
 });
