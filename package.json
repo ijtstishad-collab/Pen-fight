@@ -1,0 +1,11 @@
+{
+  "name": "pen-fight",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Flick pen duel on a school desk, in the browser.",
+  "scripts": {
+    "start": "npx --yes serve -l 8080 .",
+    "test": "node --test test/*.test.js"
+  },
+  "license": "MIT"
+}

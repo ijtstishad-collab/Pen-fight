@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Pen Fight</title>
+    <meta name="description" content="Flick your pen and knock the other pen off the school desk. Play the computer or a friend on one device." />
+    <meta name="theme-color" content="#2b2118" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="hud">
+      <div class="score" data-player="0">
+        <span class="swatch"></span><span class="name" id="name-0">Blue</span><b id="score-0">0</b>
+      </div>
+      <div class="turn" id="turn" role="status" aria-live="polite">Pen Fight</div>
+      <div class="score" data-player="1">
+        <b id="score-1">0</b><span class="name" id="name-1">Red</span><span class="swatch"></span>
+      </div>
+      <button id="menu-button" class="icon-button" type="button" aria-label="Menu">☰</button>
+    </header>
+
+    <main id="stage">
+      <canvas id="desk" aria-label="School desk with two pens"></canvas>
+
+      <section id="menu" class="overlay">
+        <div class="card">
+          <h1>Pen Fight</h1>
+          <p class="lede">Flick your pen. Knock theirs off the desk. Keep yours on.</p>
+          <fieldset>
+            <legend>Opponent</legend>
+            <div class="choices" id="mode-choices">
+              <button type="button" data-mode="easy">Computer · Easy</button>
+              <button type="button" data-mode="normal" class="selected">Computer · Normal</button>
+              <button type="button" data-mode="hard">Computer · Hard</button>
+              <button type="button" data-mode="friend">Friend (same device)</button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Match</legend>
+            <div class="choices" id="length-choices">
+              <button type="button" data-wins="1">1 round</button>
+              <button type="button" data-wins="3" class="selected">First to 3</button>
+              <button type="button" data-wins="5">First to 5</button>
+            </div>
+          </fieldset>
+          <button id="start" class="primary" type="button">Play</button>
+          <ol class="howto">
+            <li>Press on your pen.</li>
+            <li>Pull back to aim. Further pulls hit harder; grab near a tip to spin.</li>
+            <li>Let go to flick. A pen whose middle leaves the desk falls off.</li>
+          </ol>
+          <label class="toggle"><input type="checkbox" id="sound" checked /> Sound</label>
+        </div>
+      </section>
+
+      <section id="result" class="overlay" hidden>
+        <div class="card">
+          <h2 id="result-title"></h2>
+          <p id="result-text"></p>
+          <div class="actions">
+            <button id="result-next" class="primary" type="button">Next round</button>
+            <button id="result-menu" type="button">Menu</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="physics.js"></script>
+    <script src="ai.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>
