@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const P = require('../physics.js');
-const { PEN_STATS, STAT_NAMES } = require('../pen-stats.js');
+const { PEN_STATS, STAT_NAMES, STYLES, QUIZ, quizResult } = require('../pen-stats.js');
 
 const lines = JSON.parse(fs.readFileSync(__dirname + '/../pens.js', 'utf8').match(/= (\[.*\]);/s)[1]);
 
@@ -17,7 +17,7 @@ test('every pen line has balanced stats', () => {
 });
 
 test('average stats reproduce the baseline pen', () => {
-  const t = P.tuning({ speed: 5, weight: 5, grip: 5, spin: 5 });
+  const t = P.tuning({ speed: 5, power: 5, grip: 5, spin: 5 });
   for (const k of ['m', 'launch', 'fric', 'spinK']) assert.ok(Math.abs(t[k] - 1) < 1e-9, k);
 });
 
@@ -44,8 +44,28 @@ test('grip stops a pen sooner', () => {
   assert.ok(travel({ grip: 9 }) < travel({ grip: 5 }) * 0.9);
 });
 
-test('weight resists being knocked away', () => {
-  assert.ok(shoved({ weight: 9 }) < shoved({ weight: 5 }) * 0.9);
+test('power resists being knocked away', () => {
+  assert.ok(shoved({ power: 9 }) < shoved({ power: 5 }) * 0.9);
+});
+
+test("each pen's style is led by its strongest stat", () => {
+  for (const [id, st] of Object.entries(PEN_STATS)) {
+    const style = STYLES[st.style];
+    assert.ok(style, `${id} has a known style`);
+    if (!style.lead) continue;
+    for (const [k] of STAT_NAMES) {
+      if (k !== style.lead) assert.ok(st[style.lead] > st[k], `${id}: ${style.lead} beats ${k}`);
+    }
+  }
+  for (const key of Object.keys(STYLES)) {
+    assert.ok(Object.values(PEN_STATS).some((st) => st.style === key), `${key} has at least one pen`);
+  }
+});
+
+test('the quiz picks the most-chosen style, or all-rounder on a tie', () => {
+  assert.strictEqual(quizResult(['trickster', 'speedster', 'trickster']), 'trickster');
+  assert.strictEqual(quizResult(['speedster', 'powerhouse', 'precision']), 'allrounder');
+  for (const q of QUIZ) for (const [, style] of q.a) assert.ok(STYLES[style], style);
 });
 
 test('spin turns off-centre flicks into more rotation', () => {

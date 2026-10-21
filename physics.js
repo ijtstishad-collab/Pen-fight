@@ -22,11 +22,11 @@
 
   // Turns 1-10 stats (5 = average) into physical multipliers. All 5s gives the baseline pen.
   function tuning(stats) {
-    const st = Object.assign({ speed: 5, weight: 5, grip: 5, spin: 5 }, stats);
-    const m = PEN.mass * (0.7 + st.weight * 0.06); // 0.76 .. 1.3
+    const st = Object.assign({ speed: 5, power: 5, grip: 5, spin: 5 }, stats);
+    const m = PEN.mass * (0.7 + st.power * 0.06); // 0.76 .. 1.3
     return {
       m,
-      // Heavier pens launch a little slower, so weight isn't free.
+      // Heavier pens launch a little slower, so power isn't free.
       launch: (0.8 + st.speed * 0.04) / Math.pow(m / PEN.mass, 0.35), // speed 1..10 -> 0.84..1.2
       fric: 0.7 + st.grip * 0.06, // 0.76 .. 1.3
       spinK: 0.4 + st.spin * 0.12, // 0.52 .. 1.6

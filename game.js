@@ -73,22 +73,83 @@
     return (line && window.PEN_STATS && window.PEN_STATS[line.id]) || {};
   }
 
-  // NFS-style stat bars: ten segments per stat, plus the line's tagline.
-  function statPanel(stats) {
+  const STYLES = window.STYLES || {};
+
+  function lineStyle(i) {
+    const st = window.PEN_STATS && LINES[i] && window.PEN_STATS[LINES[i].id];
+    return (st && st.style) || 'allrounder';
+  }
+
+  // The style's signature line: the one strongest in the style's lead stat.
+  function signatureLine(key) {
+    const lead = (STYLES[key] || {}).lead;
+    let best = -1;
+    LINES.forEach((line, i) => {
+      if (lineStyle(i) !== key) return;
+      const v = lead ? window.PEN_STATS[line.id][lead] : 0;
+      if (best < 0 || v > (lead ? window.PEN_STATS[LINES[best].id][lead] : 0)) best = i;
+    });
+    return best;
+  }
+
+  function styleBadge(key) {
+    const style = STYLES[key];
+    const b = document.createElement('span');
+    b.className = 'style-badge';
+    if (!style) return b;
+    b.style.setProperty('--style', style.colour);
+    b.textContent = `${style.icon} ${style.name}`;
+    return b;
+  }
+
+  // Four-axis "shape" of a pen: speed up, power right, spin down, grip left.
+  function radar(stats) {
+    const R = 44;
+    const axes = [['speed', 0, -1, 'SPD'], ['power', 1, 0, 'PWR'], ['spin', 0, 1, 'SPN'], ['grip', -1, 0, 'GRP']];
+    const pt = (v, dx, dy) => `${(dx * R * v) / 10},${(dy * R * v) / 10}`;
+    const ring = (v) => axes.map(([, dx, dy]) => pt(v, dx, dy)).join(' ');
+    const shape = axes.map(([k, dx, dy]) => pt(stats[k] || 0, dx, dy)).join(' ');
+    const colour = (STYLES[stats.style] || {}).colour || '#d1252b';
+    const labels = axes
+      .map(([, dx, dy, label]) => `<text x="${dx * (R + 7)}" y="${dy * (R + 9) + 3}" text-anchor="${dx > 0 ? 'start' : dx < 0 ? 'end' : 'middle'}">${label}</text>`)
+      .join('');
+    return `<svg class="radar" viewBox="-80 -60 160 120" aria-hidden="true">
+      <polygon class="ring" points="${ring(10)}"/><polygon class="ring" points="${ring(5)}"/>
+      <polygon class="shape" points="${shape}" style="fill:${colour};stroke:${colour}"/>${labels}</svg>`;
+  }
+
+  // NFS-style stat sheet: style badge, shape, ten-segment bars, tagline and a play tip.
+  function statPanel(stats, opts) {
+    const compact = opts && opts.compact;
     const wrap = document.createElement('div');
-    wrap.className = 'stat-list';
+    wrap.className = 'stat-sheet';
+    if (stats.style) wrap.append(styleBadge(stats.style));
+    const body = document.createElement('div');
+    body.className = 'stat-body';
+    const list = document.createElement('div');
+    list.className = 'stat-list';
     for (const [key, label] of window.STAT_NAMES || []) {
       const v = stats[key] || 0;
       const row = document.createElement('div');
       row.className = 'stat';
       row.innerHTML = `<span class="stat-name">${label}</span><span class="stat-bar" role="meter" aria-valuemin="0" aria-valuemax="10" aria-valuenow="${v}" aria-label="${label}"><i style="width:${v * 10}%"></i></span><b>${v}</b>`;
-      wrap.append(row);
+      list.append(row);
     }
+    body.append(list);
+    if (!compact) body.insertAdjacentHTML('beforeend', radar(stats));
+    wrap.append(body);
     if (stats.tagline) {
       const p = document.createElement('p');
       p.className = 'tagline';
       p.textContent = stats.tagline;
       wrap.append(p);
+    }
+    const style = STYLES[stats.style];
+    if (!compact && style && style.tip) {
+      const tip = document.createElement('p');
+      tip.className = 'tip';
+      tip.textContent = `Tip: ${style.tip}`;
+      wrap.append(tip);
     }
     return wrap;
   }
@@ -127,25 +188,55 @@
     }
   }
 
+  function choosePick(player, line, pen) {
+    game.picks[player] = { line, pen: Math.min(pen, LINES[line].pens.length - 1) };
+    savePick(player);
+    renderPicker(player);
+  }
+
+  // Style first (like picking a class), then a line within that style, then a colour.
   function renderPicker(player) {
     const box = document.querySelector(`.picker[data-player="${player}"]`);
+    const styleRow = box.querySelector('.styles');
     const tabs = box.querySelector('.lines');
     const tray = box.querySelector('.tray');
     const pick = game.picks[player];
+    const current = lineStyle(pick.line);
+
+    if (styleRow) {
+      styleRow.replaceChildren(
+        ...Object.entries(STYLES).map(([key, style]) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'style-card';
+          b.style.setProperty('--style', style.colour);
+          b.setAttribute('aria-pressed', String(key === current));
+          b.innerHTML = `<span class="style-icon" aria-hidden="true">${style.icon}</span><span class="style-name">${style.name}</span>`;
+          b.title = style.blurb;
+          b.onclick = () => {
+            if (key === current) return;
+            const sig = signatureLine(key);
+            if (sig >= 0) choosePick(player, sig, pick.pen);
+          };
+          return b;
+        })
+      );
+      const blurb = box.querySelector('.style-blurb');
+      if (blurb && STYLES[current]) blurb.textContent = STYLES[current].blurb;
+    }
+
     tabs.replaceChildren(
-      ...LINES.map((line, i) => {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.role = 'tab';
-        b.textContent = line.name;
-        b.setAttribute('aria-selected', String(i === pick.line));
-        b.onclick = () => {
-          game.picks[player] = { line: i, pen: Math.min(pick.pen, line.pens.length - 1) };
-          savePick(player);
-          renderPicker(player);
-        };
-        return b;
-      })
+      ...LINES.map((line, i) => [line, i])
+        .filter(([, i]) => !styleRow || lineStyle(i) === current)
+        .map(([line, i]) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.role = 'tab';
+          b.textContent = line.name;
+          b.setAttribute('aria-selected', String(i === pick.line));
+          b.onclick = () => choosePick(player, i, pick.pen);
+          return b;
+        })
     );
     tray.replaceChildren(
       ...LINES[pick.line].pens.map((pen, i) => {
@@ -157,17 +248,102 @@
         img.src = pen.src;
         img.alt = '';
         b.append(img);
-        b.onclick = () => {
-          game.picks[player] = { line: pick.line, pen: i };
-          savePick(player);
-          renderPicker(player);
-        };
+        b.onclick = () => choosePick(player, pick.line, i);
         return b;
       })
     );
     box.querySelector('.stats').replaceChildren(statPanel(penStats(player)));
     const sel = tabs.querySelector('[aria-selected="true"]');
     if (sel) sel.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+
+  // ---------- "find my style" quiz ----------
+
+  function openQuiz(player) {
+    const dlg = el('quiz');
+    const body = el('quiz-body');
+    const answers = [];
+
+    function close() {
+      dlg.hidden = true;
+      document.removeEventListener('keydown', onKey, true);
+    }
+    function onKey(evt) {
+      if (evt.key === 'Escape') {
+        evt.stopPropagation();
+        close();
+      }
+    }
+
+    function ask(n) {
+      const item = window.QUIZ[n];
+      const head = document.createElement('div');
+      head.className = 'quiz-step';
+      head.innerHTML = `<span>Question ${n + 1} of ${window.QUIZ.length}</span><span class="quiz-dots">${window.QUIZ.map((_, i) => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</span>`;
+      const q = document.createElement('h2');
+      q.textContent = item.q;
+      const opts = document.createElement('div');
+      opts.className = 'quiz-options';
+      for (const [text, style] of item.a) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = text;
+        b.onclick = () => {
+          answers.push(style);
+          if (n + 1 < window.QUIZ.length) ask(n + 1);
+          else reveal(window.quizResult(answers));
+        };
+        opts.append(b);
+      }
+      body.replaceChildren(head, q, opts);
+      opts.querySelector('button').focus();
+    }
+
+    function reveal(key) {
+      const style = STYLES[key];
+      // Recommend the style's signature line, in the colour already picked.
+      const line = Math.max(0, signatureLine(key));
+      const info = LINES[line].pens[Math.min(game.picks[player].pen, LINES[line].pens.length - 1)];
+      const stats = window.PEN_STATS[LINES[line].id];
+      const card = document.createElement('div');
+      card.className = 'quiz-result';
+      card.style.setProperty('--style', style.colour);
+      card.innerHTML = `<p class="quiz-kicker">Your style is</p>
+        <div class="quiz-style"><span class="style-icon">${style.icon}</span><h2>${style.name}</h2></div>
+        <p>${style.blurb}</p>
+        <p class="quiz-kicker">Your pen</p>
+        <img src="${info.src}" alt="" />
+        <h3><span>Fresh</span> ${LINES[line].name}</h3>`;
+      card.append(statPanel(stats, { compact: true }));
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+      const use = document.createElement('button');
+      use.type = 'button';
+      use.className = 'primary';
+      use.textContent = 'Use this pen';
+      use.onclick = () => {
+        choosePick(player, line, game.picks[player].pen);
+        close();
+        blip(880, 0.1, 0.25);
+      };
+      const again = document.createElement('button');
+      again.type = 'button';
+      again.textContent = 'Retake';
+      again.onclick = () => {
+        answers.length = 0;
+        ask(0);
+      };
+      actions.append(use, again);
+      card.append(actions);
+      body.replaceChildren(card);
+      confetti(50);
+      use.focus();
+    }
+
+    el('quiz-close').onclick = close;
+    document.addEventListener('keydown', onKey, true);
+    dlg.hidden = false;
+    ask(0);
   }
 
   function renderPickers() {
@@ -287,7 +463,7 @@
       who.textContent = playerName(i);
       const name = document.createElement('h3');
       name.innerHTML = `<span>Fresh</span> ${info.lineName}`;
-      side.replaceChildren(who, img, name, statPanel(penStats(i)));
+      side.replaceChildren(who, img, name, statPanel(penStats(i), { compact: true }));
     }
     box.hidden = false;
     box.classList.remove('leaving');
@@ -534,6 +710,9 @@
   el('result-menu').addEventListener('click', openMenu);
   el('start').addEventListener('click', startMatch);
   el('revive-button').addEventListener('click', watchToRevive);
+  for (const btn of document.querySelectorAll('.quiz-open')) {
+    btn.addEventListener('click', () => openQuiz(Number(btn.closest('.picker').dataset.player)));
+  }
 
   function choose(groupId, attr, apply) {
     const group = el(groupId);

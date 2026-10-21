@@ -16,19 +16,30 @@ is undone, the fallen pen goes back where it was before the last flick and play 
 reward; if an ad won't load or stalls you can try another. The ad list is `VIDEOS` in `ads.js` and the threshold is
 `REWARD_SHARE`.
 
-**Pen stats.** Like cars in a racing game, every pen line has its own stats, shown as bars in the picker and on the
-VS card at the start of a match. They change the physics, not just the label:
+**Play styles and pen stats.** Choosing a pen works like picking a class in a game. First pick a play style, then
+one of that style's pen lines, then a colour. Not sure? **✨ Find my style** asks three quick questions and
+recommends a style and its signature pen.
+
+| Style | Lead stat | Pens | Plays like |
+| --- | --- | --- | --- |
+| ⚡ Speedster | Speed | Sprint, Shine, Sailor | Hit first, hit far; slippery near the edge |
+| 💪 Powerhouse | Power | InkForce, Classroom, Campus | Shoves rivals off, shrugs off hits; slower start |
+| 🎯 Precision | Grip | Icon Signature, Good Day | Stops where you aim; short glide |
+| 🌀 Trickster | Spin | Emoji, Pastello, Icon | Curves and hooks from off-centre flicks |
+| ⚖️ All-rounder | none | Allrounder | No weak spots |
+
+Every pen has 1-10 stats, shown as bars and a diamond chart in the picker and on the VS card at the start of a
+match. They change the physics, not just the label:
 
 | Stat | Effect |
 | --- | --- |
 | Speed | How fast (and so how far) a flick sends the pen. |
-| Weight | Heavier pens hit harder and are harder to knock away, but launch a little slower. |
+| Power | Heavier pens hit harder and are harder to knock away, but launch a little slower. |
 | Grip | High grip stops sooner and stays on the desk; low grip glides further. |
 | Spin | How much an off-centre flick spins the pen. |
 
-Every line spends the same 24 points (Sprint is the speedster, InkForce the heavyweight, Emoji the spin king), so
-there is no best pen, just different styles. The numbers live in `pen-stats.js`; `physics.js` (`tuning`) turns them
-into mass, launch speed, friction and spin.
+Every line spends the same 24 points, so there is no best pen, just different styles. Styles, stats, taglines and the
+quiz live in `pen-stats.js`; `physics.js` (`tuning`) turns stats into mass, launch speed, friction and spin.
 
 Pick your pen from 72 real **Fresh** ball pens in 12 lines: Icon, Icon Signature, InkForce, Pastello, Allrounder,
 Emoji, Shine, Sailor, Classroom, Campus, Good Day and Sprint. Against the computer, it plays a random pen from
@@ -65,7 +76,7 @@ off and you lose it, even if you took theirs with you. The first to the chosen n
 | File | What it does |
 | --- | --- |
 | `physics.js` | Capsule rigid-body physics: sliding friction, spin, pen-to-pen collisions, falling off the desk. |
-| `pen-stats.js` | Speed, weight, grip and spin for each pen line, with a one-line tagline. |
+| `pen-stats.js` | Play styles, each line's speed/power/grip/spin and tagline, and the style quiz. |
 | `ai.js` | Computer opponent: simulates candidate flicks with the same physics and plays the best one, with aim error per difficulty. |
 | `game.js` | Pointer input (mouse and touch), turns, rounds, scoring, the aim overlay and the 2D fallback view. |
 | `ads.js` | Rewarded ads: YouTube player dialog, watched-time tracking and the 30% unlock. |
