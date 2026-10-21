@@ -68,6 +68,31 @@
     return line ? Object.assign({ lineName: line.name }, line.pens[pick.pen]) : null;
   }
 
+  function penStats(player) {
+    const line = LINES[game.picks[player].line];
+    return (line && window.PEN_STATS && window.PEN_STATS[line.id]) || {};
+  }
+
+  // NFS-style stat bars: ten segments per stat, plus the line's tagline.
+  function statPanel(stats) {
+    const wrap = document.createElement('div');
+    wrap.className = 'stat-list';
+    for (const [key, label] of window.STAT_NAMES || []) {
+      const v = stats[key] || 0;
+      const row = document.createElement('div');
+      row.className = 'stat';
+      row.innerHTML = `<span class="stat-name">${label}</span><span class="stat-bar" role="meter" aria-valuemin="0" aria-valuemax="10" aria-valuenow="${v}" aria-label="${label}"><i style="width:${v * 10}%"></i></span><b>${v}</b>`;
+      wrap.append(row);
+    }
+    if (stats.tagline) {
+      const p = document.createElement('p');
+      p.className = 'tagline';
+      p.textContent = stats.tagline;
+      wrap.append(p);
+    }
+    return wrap;
+  }
+
   function loadPick(player, fallback) {
     try {
       const v = JSON.parse(localStorage.getItem(`penfight.pick.${player}`));
@@ -140,6 +165,7 @@
         return b;
       })
     );
+    box.querySelector('.stats').replaceChildren(statPanel(penStats(player)));
     const sel = tabs.querySelector('[aria-selected="true"]');
     if (sel) sel.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
@@ -241,15 +267,48 @@
     ui.name[1].textContent = playerName(1);
     ui.menu.hidden = true;
     if (r3d) r3d.intro();
+    showVersus();
     startRound();
+  }
+
+  // Match intro card: both pens and their stats, like a racing game's start line.
+  let versusTimer = null;
+  function showVersus() {
+    const box = el('versus');
+    if (!LINES.length || !window.PEN_STATS) return;
+    for (const i of [0, 1]) {
+      const info = penInfo(i);
+      const side = box.querySelector(`.vs-side[data-player="${i}"]`);
+      const img = document.createElement('img');
+      img.src = info.src;
+      img.alt = '';
+      const who = document.createElement('p');
+      who.className = 'vs-who';
+      who.textContent = playerName(i);
+      const name = document.createElement('h3');
+      name.innerHTML = `<span>Fresh</span> ${info.lineName}`;
+      side.replaceChildren(who, img, name, statPanel(penStats(i)));
+    }
+    box.hidden = false;
+    box.classList.remove('leaving');
+    clearTimeout(versusTimer);
+    const hide = () => {
+      box.classList.add('leaving');
+      versusTimer = setTimeout(() => (box.hidden = true), 300);
+    };
+    versusTimer = setTimeout(hide, 2600);
+    box.onclick = () => {
+      clearTimeout(versusTimer);
+      hide();
+    };
   }
 
   function startRound() {
     const cy = DESK.y + DESK.h / 2;
     const jitter = () => (Math.random() - 0.5) * 0.5;
     game.pens = [
-      P.makePen(DESK.x + DESK.w * 0.3, cy + (Math.random() - 0.5) * 120, Math.PI / 2 + jitter(), 0),
-      P.makePen(DESK.x + DESK.w * 0.7, cy + (Math.random() - 0.5) * 120, Math.PI / 2 + jitter(), 1),
+      P.makePen(DESK.x + DESK.w * 0.3, cy + (Math.random() - 0.5) * 120, Math.PI / 2 + jitter(), 0, penStats(0)),
+      P.makePen(DESK.x + DESK.w * 0.7, cy + (Math.random() - 0.5) * 120, Math.PI / 2 + jitter(), 1, penStats(1)),
     ];
     game.current = game.starter;
     game.round++;
@@ -831,8 +890,8 @@
   renderPickers();
   applyPenColours();
   game.pens = [
-    P.makePen(DESK.x + DESK.w * 0.3, DESK.y + DESK.h / 2, Math.PI / 2 - 0.2, 0),
-    P.makePen(DESK.x + DESK.w * 0.7, DESK.y + DESK.h / 2, Math.PI / 2 + 0.2, 1),
+    P.makePen(DESK.x + DESK.w * 0.3, DESK.y + DESK.h / 2, Math.PI / 2 - 0.2, 0, penStats(0)),
+    P.makePen(DESK.x + DESK.w * 0.7, DESK.y + DESK.h / 2, Math.PI / 2 + 0.2, 1, penStats(1)),
   ];
   window.PenFight = { game, toScreen }; // for debugging and browser tests
   requestAnimationFrame(frame);

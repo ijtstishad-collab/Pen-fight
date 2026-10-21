@@ -20,12 +20,26 @@
   const STOP_W = 0.08;
   const STEP = 1 / 120;
 
-  function makePen(x, y, angle, owner) {
-    const m = PEN.mass;
+  // Turns 1-10 stats (5 = average) into physical multipliers. All 5s gives the baseline pen.
+  function tuning(stats) {
+    const st = Object.assign({ speed: 5, weight: 5, grip: 5, spin: 5 }, stats);
+    const m = PEN.mass * (0.7 + st.weight * 0.06); // 0.76 .. 1.3
+    return {
+      m,
+      // Heavier pens launch a little slower, so weight isn't free.
+      launch: (0.8 + st.speed * 0.04) / Math.pow(m / PEN.mass, 0.35), // speed 1..10 -> 0.84..1.2
+      fric: 0.7 + st.grip * 0.06, // 0.76 .. 1.3
+      spinK: 0.4 + st.spin * 0.12, // 0.52 .. 1.6
+    };
+  }
+
+  function makePen(x, y, angle, owner, stats) {
     const len = PEN.length;
+    const t = tuning(stats);
     return {
       x, y, a: angle, vx: 0, vy: 0, w: 0,
-      owner, len, r: PEN.radius, m, I: (m * len * len) / 12,
+      owner, len, r: PEN.radius, m: t.m, I: (t.m * len * len) / 12,
+      launch: t.launch, fric: t.fric, spinK: t.spinK,
       out: false, fall: 0,
     };
   }
@@ -142,14 +156,14 @@
   // Flick a pen at offset `s` along its axis (-len/2..len/2) in direction (dx, dy) with power 0..1.
   function flick(p, s, dx, dy, power) {
     const n = Math.hypot(dx, dy) || 1;
-    const j = clamp(power, 0, 1) * MAX_IMPULSE * p.m;
+    const j = clamp(power, 0, 1) * MAX_IMPULSE * p.m * (p.launch || 1);
     const jx = (dx / n) * j;
     const jy = (dy / n) * j;
     const rx = Math.cos(p.a) * s;
     const ry = Math.sin(p.a) * s;
     p.vx += jx / p.m;
     p.vy += jy / p.m;
-    p.w += ((rx * jy - ry * jx) / p.I) * SPIN_FACTOR;
+    p.w += ((rx * jy - ry * jx) / p.I) * SPIN_FACTOR * (p.spinK || 1);
   }
 
   function onDesk(x, y) {
@@ -160,9 +174,9 @@
     return Math.min(p.x - DESK.x, DESK.x + DESK.w - p.x, p.y - DESK.y, DESK.y + DESK.h - p.y);
   }
 
-  function slow(v, k, dt) {
+  function slow(v, k, dt, grip) {
     const speed = Math.abs(v);
-    const dec = (k[0] + k[1] * speed) * dt;
+    const dec = (k[0] + k[1] * speed) * dt * grip;
     return dec >= speed ? 0 : v - Math.sign(v) * dec;
   }
 
@@ -184,11 +198,11 @@
       }
       const speed = Math.hypot(p.vx, p.vy);
       if (speed > 0) {
-        const ns = slow(speed, LIN, dt);
+        const ns = slow(speed, LIN, dt, p.fric || 1);
         p.vx *= ns / speed;
         p.vy *= ns / speed;
       }
-      p.w = slow(p.w, ANG, dt);
+      p.w = slow(p.w, ANG, dt, p.fric || 1);
       p.x += p.vx * dt;
       p.y += p.vy * dt;
       p.a += p.w * dt;
@@ -250,7 +264,7 @@
 
   const api = {
     WORLD, DESK, PEN, STEP, MAX_IMPULSE,
-    makePen, clonePens, endpoints, closestSegments, collide, flick,
+    makePen, tuning, clonePens, endpoints, closestSegments, collide, flick,
     onDesk, edgeDistance, step, atRest, settle, simulate,
   };
 

@@ -71,16 +71,24 @@
               <legend id="picker-0-label">Your pen</legend>
               <div class="lines" role="tablist" aria-label="Pen line"></div>
               <div class="tray"></div>
+              <div class="stats"></div>
             </fieldset>
             <fieldset class="picker" data-player="1" hidden>
               <legend>Player 2's pen</legend>
               <div class="lines" role="tablist" aria-label="Pen line"></div>
               <div class="tray"></div>
+              <div class="stats"></div>
             </fieldset>
             <button id="start" class="primary" type="button">Play</button>
             <label class="toggle"><input type="checkbox" id="sound" checked /> Sound</label>
           </div>
         </div>
+      </section>
+
+      <section id="versus" class="versus" hidden aria-live="polite">
+        <div class="vs-side" data-player="0"></div>
+        <div class="vs-mark">VS</div>
+        <div class="vs-side" data-player="1"></div>
       </section>
 
       <section id="result" class="overlay" hidden>
@@ -121,6 +129,7 @@
 
     <script src="vendor/three.min.js"></script>
     <script src="pens.js"></script>
+    <script src="pen-stats.js"></script>
     <script src="physics.js"></script>
     <script src="ai.js"></script>
     <script src="render3d.js"></script>
