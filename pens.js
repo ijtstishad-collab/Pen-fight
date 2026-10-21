@@ -9,42 +9,84 @@ window.PEN_LINES = [
         "colour": "#d74c5e",
         "aspect": 0.0977,
         "axis": 0.73,
-        "thickness": 0.54
+        "thickness": 0.54,
+        "clip": {
+          "from": 0.002,
+          "to": 0.3027,
+          "height": 0.852,
+          "colour": "#e1b9be",
+          "opacity": 0.94
+        }
       },
       {
         "src": "assets/pens/icon-2.webp",
         "colour": "#2f3a6d",
         "aspect": 0.0996,
         "axis": 0.7255,
-        "thickness": 0.549
+        "thickness": 0.549,
+        "clip": {
+          "from": 0.002,
+          "to": 0.3027,
+          "height": 0.821,
+          "colour": "#b8bbc8",
+          "opacity": 0.94
+        }
       },
       {
         "src": "assets/pens/icon-3.webp",
         "colour": "#f3cf1f",
         "aspect": 0.0977,
         "axis": 0.71,
-        "thickness": 0.58
+        "thickness": 0.58,
+        "clip": {
+          "from": 0.002,
+          "to": 0.293,
+          "height": 0.724,
+          "colour": "#eae2c4",
+          "opacity": 0.93
+        }
       },
       {
         "src": "assets/pens/icon-4.webp",
         "colour": "#65afd7",
         "aspect": 0.0996,
         "axis": 0.7157,
-        "thickness": 0.5294
+        "thickness": 0.5294,
+        "clip": {
+          "from": 0.002,
+          "to": 0.2988,
+          "height": 0.852,
+          "colour": "#c1d7e1",
+          "opacity": 0.93
+        }
       },
       {
         "src": "assets/pens/icon-5.webp",
         "colour": "#cbc7c6",
         "aspect": 0.0977,
         "axis": 0.71,
-        "thickness": 0.54
+        "thickness": 0.54,
+        "clip": {
+          "from": 0.002,
+          "to": 0.2988,
+          "height": 0.815,
+          "colour": "#dddddd",
+          "opacity": 0.93
+        }
       },
       {
         "src": "assets/pens/icon-6.webp",
         "colour": "#10ced6",
         "aspect": 0.0938,
         "axis": 0.6979,
-        "thickness": 0.5625
+        "thickness": 0.5625,
+        "clip": {
+          "from": 0.002,
+          "to": 0.3125,
+          "height": 0.741,
+          "colour": "#a3ddde",
+          "opacity": 0.95
+        }
       }
     ]
   },
@@ -57,42 +99,84 @@ window.PEN_LINES = [
         "colour": "#afd368",
         "aspect": 0.0996,
         "axis": 0.6471,
-        "thickness": 0.549
+        "thickness": 0.549,
+        "clip": {
+          "from": 0.002,
+          "to": 0.3105,
+          "height": 0.679,
+          "colour": "#e2e5df",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/icon-signature-2.webp",
         "colour": "#5bb2e0",
         "aspect": 0.0996,
         "axis": 0.6569,
-        "thickness": 0.5294
+        "thickness": 0.5294,
+        "clip": {
+          "from": 0.002,
+          "to": 0.3164,
+          "height": 0.741,
+          "colour": "#cfe1e7",
+          "opacity": 0.92
+        }
       },
       {
         "src": "assets/pens/icon-signature-3.webp",
         "colour": "#e1975e",
         "aspect": 0.0996,
         "axis": 0.6569,
-        "thickness": 0.5294
+        "thickness": 0.5294,
+        "clip": {
+          "from": 0.002,
+          "to": 0.3164,
+          "height": 0.741,
+          "colour": "#e4dbd3",
+          "opacity": 0.93
+        }
       },
       {
         "src": "assets/pens/icon-signature-4.webp",
         "colour": "#ea6e66",
         "aspect": 0.0996,
         "axis": 0.6569,
-        "thickness": 0.5294
+        "thickness": 0.5294,
+        "clip": {
+          "from": 0.002,
+          "to": 0.3164,
+          "height": 0.741,
+          "colour": "#e4cecf",
+          "opacity": 0.94
+        }
       },
       {
         "src": "assets/pens/icon-signature-5.webp",
         "colour": "#a17db7",
         "aspect": 0.0996,
         "axis": 0.6569,
-        "thickness": 0.5294
+        "thickness": 0.5294,
+        "clip": {
+          "from": 0.002,
+          "to": 0.3164,
+          "height": 0.741,
+          "colour": "#dbd6e0",
+          "opacity": 0.93
+        }
       },
       {
         "src": "assets/pens/icon-signature-6.webp",
         "colour": "#707071",
         "aspect": 0.0996,
         "axis": 0.6471,
-        "thickness": 0.549
+        "thickness": 0.549,
+        "clip": {
+          "from": 0.002,
+          "to": 0.3125,
+          "height": 0.679,
+          "colour": "#dcdddd",
+          "opacity": 0.92
+        }
       }
     ]
   },
@@ -105,42 +189,48 @@ window.PEN_LINES = [
         "colour": "#646b4a",
         "aspect": 0.0684,
         "axis": 0.4857,
-        "thickness": 0.8571
+        "thickness": 0.8571,
+        "clip": null
       },
       {
         "src": "assets/pens/inkforce-2.webp",
         "colour": "#b78631",
         "aspect": 0.0684,
         "axis": 0.4857,
-        "thickness": 0.8571
+        "thickness": 0.8571,
+        "clip": null
       },
       {
         "src": "assets/pens/inkforce-3.webp",
         "colour": "#217d3e",
         "aspect": 0.0684,
         "axis": 0.4857,
-        "thickness": 0.8571
+        "thickness": 0.8571,
+        "clip": null
       },
       {
         "src": "assets/pens/inkforce-4.webp",
         "colour": "#706f6f",
         "aspect": 0.0684,
         "axis": 0.4857,
-        "thickness": 0.8571
+        "thickness": 0.8571,
+        "clip": null
       },
       {
         "src": "assets/pens/inkforce-5.webp",
         "colour": "#4d2a7d",
         "aspect": 0.0684,
         "axis": 0.4857,
-        "thickness": 0.8571
+        "thickness": 0.8571,
+        "clip": null
       },
       {
         "src": "assets/pens/inkforce-6.webp",
         "colour": "#285494",
         "aspect": 0.0684,
         "axis": 0.4857,
-        "thickness": 0.8571
+        "thickness": 0.8571,
+        "clip": null
       }
     ]
   },
@@ -153,42 +243,84 @@ window.PEN_LINES = [
         "colour": "#9fd6e0",
         "aspect": 0.1016,
         "axis": 0.6827,
-        "thickness": 0.4808
+        "thickness": 0.4808,
+        "clip": {
+          "from": 0.0684,
+          "to": 0.3594,
+          "height": 0.92,
+          "colour": "#a8ccd9",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/pastello-2.webp",
         "colour": "#e69abc",
         "aspect": 0.0996,
         "axis": 0.7353,
-        "thickness": 0.5294
+        "thickness": 0.5294,
+        "clip": {
+          "from": 0.0605,
+          "to": 0.3574,
+          "height": 0.889,
+          "colour": "#e095b3",
+          "opacity": 0.93
+        }
       },
       {
         "src": "assets/pens/pastello-3.webp",
         "colour": "#5dd3be",
         "aspect": 0.1035,
         "axis": 0.7264,
-        "thickness": 0.4717
+        "thickness": 0.4717,
+        "clip": {
+          "from": 0.0547,
+          "to": 0.3613,
+          "height": 1.04,
+          "colour": "#53bba1",
+          "opacity": 0.94
+        }
       },
       {
         "src": "assets/pens/pastello-4.webp",
         "colour": "#83bae4",
         "aspect": 0.1055,
         "axis": 0.7037,
-        "thickness": 0.4815
+        "thickness": 0.4815,
+        "clip": {
+          "from": 0.0566,
+          "to": 0.3574,
+          "height": 0.923,
+          "colour": "#7c98d3",
+          "opacity": 0.94
+        }
       },
       {
         "src": "assets/pens/pastello-5.webp",
         "colour": "#d2d0d5",
         "aspect": 0.1074,
         "axis": 0.6818,
-        "thickness": 0.4909
+        "thickness": 0.4909,
+        "clip": {
+          "from": 0.0586,
+          "to": 0.3535,
+          "height": 0.889,
+          "colour": "#cfcdd2",
+          "opacity": 0.94
+        }
       },
       {
         "src": "assets/pens/pastello-6.webp",
         "colour": "#c3b2cf",
         "aspect": 0.1074,
         "axis": 0.6727,
-        "thickness": 0.5091
+        "thickness": 0.5091,
+        "clip": {
+          "from": 0.0664,
+          "to": 0.3496,
+          "height": 0.786,
+          "colour": "#b09bbe",
+          "opacity": 0.94
+        }
       }
     ]
   },
@@ -201,42 +333,84 @@ window.PEN_LINES = [
         "colour": "#9c7da7",
         "aspect": 0.0918,
         "axis": 0.6489,
-        "thickness": 0.617
+        "thickness": 0.617,
+        "clip": {
+          "from": 0.0078,
+          "to": 0.3594,
+          "height": 0.552,
+          "colour": "#9b70ab",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/allrounder-2.webp",
         "colour": "#b3d266",
         "aspect": 0.0918,
         "axis": 0.6489,
-        "thickness": 0.617
+        "thickness": 0.617,
+        "clip": {
+          "from": 0.0078,
+          "to": 0.3594,
+          "height": 0.552,
+          "colour": "#c3da7f",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/allrounder-3.webp",
         "colour": "#42bfdf",
         "aspect": 0.0918,
         "axis": 0.6596,
-        "thickness": 0.5957
+        "thickness": 0.5957,
+        "clip": {
+          "from": 0.0078,
+          "to": 0.3594,
+          "height": 0.607,
+          "colour": "#74cbe4",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/allrounder-4.webp",
         "colour": "#e3cf53",
         "aspect": 0.0918,
         "axis": 0.6596,
-        "thickness": 0.5957
+        "thickness": 0.5957,
+        "clip": {
+          "from": 0.0078,
+          "to": 0.3594,
+          "height": 0.607,
+          "colour": "#ddd089",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/allrounder-5.webp",
         "colour": "#d72d87",
         "aspect": 0.0918,
         "axis": 0.6596,
-        "thickness": 0.5957
+        "thickness": 0.5957,
+        "clip": {
+          "from": 0.0078,
+          "to": 0.3594,
+          "height": 0.607,
+          "colour": "#e564a6",
+          "opacity": 0.9
+        }
       },
       {
         "src": "assets/pens/allrounder-6.webp",
         "colour": "#58c5bf",
         "aspect": 0.0918,
         "axis": 0.6596,
-        "thickness": 0.5957
+        "thickness": 0.5957,
+        "clip": {
+          "from": 0.0078,
+          "to": 0.3594,
+          "height": 0.607,
+          "colour": "#90d1d0",
+          "opacity": 0.9
+        }
       }
     ]
   },
@@ -249,42 +423,84 @@ window.PEN_LINES = [
         "colour": "#f94150",
         "aspect": 0.0957,
         "axis": 0.5714,
-        "thickness": 0.6122
+        "thickness": 0.6122,
+        "clip": {
+          "from": 0.0039,
+          "to": 0.2949,
+          "height": 0.433,
+          "colour": "#e54551",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/emoji-2.webp",
         "colour": "#b8d370",
         "aspect": 0.0957,
         "axis": 0.5714,
-        "thickness": 0.6122
+        "thickness": 0.6122,
+        "clip": {
+          "from": 0.0039,
+          "to": 0.2949,
+          "height": 0.433,
+          "colour": "#abc36e",
+          "opacity": 0.92
+        }
       },
       {
         "src": "assets/pens/emoji-3.webp",
         "colour": "#a356f5",
         "aspect": 0.0957,
         "axis": 0.5612,
-        "thickness": 0.6327
+        "thickness": 0.6327,
+        "clip": {
+          "from": 0.0039,
+          "to": 0.2949,
+          "height": 0.387,
+          "colour": "#964be7",
+          "opacity": 0.94
+        }
       },
       {
         "src": "assets/pens/emoji-4.webp",
         "colour": "#54d0ce",
         "aspect": 0.0957,
         "axis": 0.5714,
-        "thickness": 0.6122
+        "thickness": 0.6122,
+        "clip": {
+          "from": 0.0039,
+          "to": 0.2949,
+          "height": 0.433,
+          "colour": "#5ac1c0",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/emoji-5.webp",
         "colour": "#fb9f30",
         "aspect": 0.0957,
         "axis": 0.5714,
-        "thickness": 0.6122
+        "thickness": 0.6122,
+        "clip": {
+          "from": 0.0039,
+          "to": 0.2949,
+          "height": 0.433,
+          "colour": "#e69940",
+          "opacity": 0.92
+        }
       },
       {
         "src": "assets/pens/emoji-6.webp",
         "colour": "#767373",
         "aspect": 0.0957,
         "axis": 0.5714,
-        "thickness": 0.6122
+        "thickness": 0.6122,
+        "clip": {
+          "from": 0.0039,
+          "to": 0.2949,
+          "height": 0.433,
+          "colour": "#454646",
+          "opacity": 0.93
+        }
       }
     ]
   },
@@ -297,42 +513,84 @@ window.PEN_LINES = [
         "colour": "#696868",
         "aspect": 0.1035,
         "axis": 0.6792,
-        "thickness": 0.566
+        "thickness": 0.566,
+        "clip": {
+          "from": 0.0254,
+          "to": 0.3477,
+          "height": 0.7,
+          "colour": "#c9c7c7",
+          "opacity": 0.74
+        }
       },
       {
         "src": "assets/pens/shine-2.webp",
         "colour": "#30a1e3",
         "aspect": 0.1055,
         "axis": 0.7037,
-        "thickness": 0.5556
+        "thickness": 0.5556,
+        "clip": {
+          "from": 0.0215,
+          "to": 0.3477,
+          "height": 0.767,
+          "colour": "#c5c8cb",
+          "opacity": 0.77
+        }
       },
       {
         "src": "assets/pens/shine-3.webp",
         "colour": "#b6b4b4",
         "aspect": 0.1035,
         "axis": 0.6792,
-        "thickness": 0.566
+        "thickness": 0.566,
+        "clip": {
+          "from": 0.0254,
+          "to": 0.3477,
+          "height": 0.7,
+          "colour": "#cbc9c9",
+          "opacity": 0.75
+        }
       },
       {
         "src": "assets/pens/shine-4.webp",
         "colour": "#60dbcf",
         "aspect": 0.1074,
         "axis": 0.7091,
-        "thickness": 0.5455
+        "thickness": 0.5455,
+        "clip": {
+          "from": 0.0195,
+          "to": 0.3477,
+          "height": 0.8,
+          "colour": "#c6cbca",
+          "opacity": 0.77
+        }
       },
       {
         "src": "assets/pens/shine-5.webp",
         "colour": "#edc917",
         "aspect": 0.1074,
         "axis": 0.7091,
-        "thickness": 0.5455
+        "thickness": 0.5455,
+        "clip": {
+          "from": 0.0195,
+          "to": 0.3477,
+          "height": 0.8,
+          "colour": "#cecac1",
+          "opacity": 0.77
+        }
       },
       {
         "src": "assets/pens/shine-6.webp",
         "colour": "#7c14da",
         "aspect": 0.1035,
         "axis": 0.6981,
-        "thickness": 0.566
+        "thickness": 0.566,
+        "clip": {
+          "from": 0.0215,
+          "to": 0.3477,
+          "height": 0.733,
+          "colour": "#c7c3c9",
+          "opacity": 0.76
+        }
       }
     ]
   },
@@ -345,42 +603,84 @@ window.PEN_LINES = [
         "colour": "#e25da3",
         "aspect": 0.0918,
         "axis": 0.6809,
-        "thickness": 0.5957
+        "thickness": 0.5957,
+        "clip": {
+          "from": 0.0059,
+          "to": 0.3027,
+          "height": 0.643,
+          "colour": "#e6e2e5",
+          "opacity": 0.82
+        }
       },
       {
         "src": "assets/pens/sailor-2.webp",
         "colour": "#e99253",
         "aspect": 0.0918,
         "axis": 0.6809,
-        "thickness": 0.5957
+        "thickness": 0.5957,
+        "clip": {
+          "from": 0.0059,
+          "to": 0.3027,
+          "height": 0.643,
+          "colour": "#e6e4e3",
+          "opacity": 0.82
+        }
       },
       {
         "src": "assets/pens/sailor-3.webp",
         "colour": "#5d72b6",
         "aspect": 0.0918,
         "axis": 0.6809,
-        "thickness": 0.5957
+        "thickness": 0.5957,
+        "clip": {
+          "from": 0.0059,
+          "to": 0.3027,
+          "height": 0.643,
+          "colour": "#e1e3e6",
+          "opacity": 0.82
+        }
       },
       {
         "src": "assets/pens/sailor-4.webp",
         "colour": "#e8de54",
         "aspect": 0.0918,
         "axis": 0.6809,
-        "thickness": 0.5957
+        "thickness": 0.5957,
+        "clip": {
+          "from": 0.0059,
+          "to": 0.3027,
+          "height": 0.643,
+          "colour": "#e6e6e3",
+          "opacity": 0.82
+        }
       },
       {
         "src": "assets/pens/sailor-5.webp",
         "colour": "#ab80b6",
         "aspect": 0.0918,
         "axis": 0.6809,
-        "thickness": 0.5957
+        "thickness": 0.5957,
+        "clip": {
+          "from": 0.0059,
+          "to": 0.3027,
+          "height": 0.643,
+          "colour": "#e4e2e5",
+          "opacity": 0.82
+        }
       },
       {
         "src": "assets/pens/sailor-6.webp",
         "colour": "#56bc8c",
         "aspect": 0.0918,
         "axis": 0.6809,
-        "thickness": 0.5957
+        "thickness": 0.5957,
+        "clip": {
+          "from": 0.0059,
+          "to": 0.3027,
+          "height": 0.643,
+          "colour": "#e2e5e4",
+          "opacity": 0.82
+        }
       }
     ]
   },
@@ -393,42 +693,84 @@ window.PEN_LINES = [
         "colour": "#4bb856",
         "aspect": 0.0996,
         "axis": 0.6667,
-        "thickness": 0.5882
+        "thickness": 0.5882,
+        "clip": {
+          "from": 0.0371,
+          "to": 0.3281,
+          "height": 0.633,
+          "colour": "#e5e6e4",
+          "opacity": 0.9
+        }
       },
       {
         "src": "assets/pens/classroom-2.webp",
         "colour": "#e9dd37",
         "aspect": 0.0996,
         "axis": 0.6667,
-        "thickness": 0.5882
+        "thickness": 0.5882,
+        "clip": {
+          "from": 0.0371,
+          "to": 0.3301,
+          "height": 0.633,
+          "colour": "#e8e7e3",
+          "opacity": 0.9
+        }
       },
       {
         "src": "assets/pens/classroom-3.webp",
         "colour": "#db4e3c",
         "aspect": 0.0977,
         "axis": 0.67,
-        "thickness": 0.58
+        "thickness": 0.58,
+        "clip": {
+          "from": 0.0371,
+          "to": 0.3301,
+          "height": 0.655,
+          "colour": "#e7e4e1",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/classroom-4.webp",
         "colour": "#c25fa6",
         "aspect": 0.0996,
         "axis": 0.6667,
-        "thickness": 0.5882
+        "thickness": 0.5882,
+        "clip": {
+          "from": 0.0371,
+          "to": 0.3281,
+          "height": 0.633,
+          "colour": "#e7e4e5",
+          "opacity": 0.9
+        }
       },
       {
         "src": "assets/pens/classroom-5.webp",
         "colour": "#3b8eca",
         "aspect": 0.0996,
         "axis": 0.6667,
-        "thickness": 0.5882
+        "thickness": 0.5882,
+        "clip": {
+          "from": 0.0371,
+          "to": 0.3301,
+          "height": 0.633,
+          "colour": "#e4e6e6",
+          "opacity": 0.9
+        }
       },
       {
         "src": "assets/pens/classroom-6.webp",
         "colour": "#46bfad",
         "aspect": 0.0977,
         "axis": 0.67,
-        "thickness": 0.58
+        "thickness": 0.58,
+        "clip": {
+          "from": 0.0371,
+          "to": 0.3301,
+          "height": 0.655,
+          "colour": "#e3e6e4",
+          "opacity": 0.91
+        }
       }
     ]
   },
@@ -441,42 +783,84 @@ window.PEN_LINES = [
         "colour": "#d475af",
         "aspect": 0.1016,
         "axis": 0.6346,
-        "thickness": 0.6154
+        "thickness": 0.6154,
+        "clip": {
+          "from": 0.0352,
+          "to": 0.3418,
+          "height": 0.531,
+          "colour": "#c65ca3",
+          "opacity": 0.93
+        }
       },
       {
         "src": "assets/pens/campus-2.webp",
         "colour": "#8863a9",
         "aspect": 0.1016,
         "axis": 0.6346,
-        "thickness": 0.6154
+        "thickness": 0.6154,
+        "clip": {
+          "from": 0.0352,
+          "to": 0.3418,
+          "height": 0.531,
+          "colour": "#704fa1",
+          "opacity": 0.95
+        }
       },
       {
         "src": "assets/pens/campus-3.webp",
         "colour": "#5076ba",
         "aspect": 0.1016,
         "axis": 0.6346,
-        "thickness": 0.6154
+        "thickness": 0.6154,
+        "clip": {
+          "from": 0.0371,
+          "to": 0.3418,
+          "height": 0.531,
+          "colour": "#3d6eb6",
+          "opacity": 0.95
+        }
       },
       {
         "src": "assets/pens/campus-4.webp",
         "colour": "#5dbb6b",
         "aspect": 0.1016,
         "axis": 0.6346,
-        "thickness": 0.6154
+        "thickness": 0.6154,
+        "clip": {
+          "from": 0.0352,
+          "to": 0.3418,
+          "height": 0.531,
+          "colour": "#4bb353",
+          "opacity": 0.93
+        }
       },
       {
         "src": "assets/pens/campus-5.webp",
         "colour": "#54bfab",
         "aspect": 0.1016,
         "axis": 0.6346,
-        "thickness": 0.6154
+        "thickness": 0.6154,
+        "clip": {
+          "from": 0.0352,
+          "to": 0.3418,
+          "height": 0.531,
+          "colour": "#39b89e",
+          "opacity": 0.95
+        }
       },
       {
         "src": "assets/pens/campus-6.webp",
         "colour": "#d7c32c",
         "aspect": 0.1016,
         "axis": 0.6346,
-        "thickness": 0.6154
+        "thickness": 0.6154,
+        "clip": {
+          "from": 0.0371,
+          "to": 0.3418,
+          "height": 0.531,
+          "colour": "#d6ba22",
+          "opacity": 0.95
+        }
       }
     ]
   },
@@ -489,42 +873,84 @@ window.PEN_LINES = [
         "colour": "#5a6bb2",
         "aspect": 0.0742,
         "axis": 0.6316,
-        "thickness": 0.6842
+        "thickness": 0.6842,
+        "clip": {
+          "from": 0.0527,
+          "to": 0.3457,
+          "height": 0.423,
+          "colour": "#7e85c1",
+          "opacity": 0.88
+        }
       },
       {
         "src": "assets/pens/good-day-2.webp",
         "colour": "#8bcb80",
         "aspect": 0.0742,
         "axis": 0.6316,
-        "thickness": 0.6842
+        "thickness": 0.6842,
+        "clip": {
+          "from": 0.0508,
+          "to": 0.3457,
+          "height": 0.423,
+          "colour": "#9dd4a1",
+          "opacity": 0.88
+        }
       },
       {
         "src": "assets/pens/good-day-3.webp",
         "colour": "#d877b1",
         "aspect": 0.0742,
         "axis": 0.6316,
-        "thickness": 0.6842
+        "thickness": 0.6842,
+        "clip": {
+          "from": 0.0527,
+          "to": 0.3457,
+          "height": 0.423,
+          "colour": "#db8fbe",
+          "opacity": 0.88
+        }
       },
       {
         "src": "assets/pens/good-day-4.webp",
         "colour": "#f6a644",
         "aspect": 0.0742,
         "axis": 0.6316,
-        "thickness": 0.6842
+        "thickness": 0.6842,
+        "clip": {
+          "from": 0.0527,
+          "to": 0.3457,
+          "height": 0.423,
+          "colour": "#eab86f",
+          "opacity": 0.88
+        }
       },
       {
         "src": "assets/pens/good-day-5.webp",
         "colour": "#50c8e9",
         "aspect": 0.0742,
         "axis": 0.6316,
-        "thickness": 0.6842
+        "thickness": 0.6842,
+        "clip": {
+          "from": 0.0508,
+          "to": 0.3457,
+          "height": 0.423,
+          "colour": "#7fc9e3",
+          "opacity": 0.88
+        }
       },
       {
         "src": "assets/pens/good-day-6.webp",
         "colour": "#f0d754",
         "aspect": 0.0742,
         "axis": 0.6316,
-        "thickness": 0.6842
+        "thickness": 0.6842,
+        "clip": {
+          "from": 0.0527,
+          "to": 0.3457,
+          "height": 0.423,
+          "colour": "#e4d683",
+          "opacity": 0.88
+        }
       }
     ]
   },
@@ -537,42 +963,84 @@ window.PEN_LINES = [
         "colour": "#bababa",
         "aspect": 0.1133,
         "axis": 0.7414,
-        "thickness": 0.4483
+        "thickness": 0.4483,
+        "clip": {
+          "from": 0.0508,
+          "to": 0.3789,
+          "height": 1.154,
+          "colour": "#e7e7e7",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/sprint-2.webp",
         "colour": "#776ba2",
         "aspect": 0.1133,
         "axis": 0.7414,
-        "thickness": 0.4483
+        "thickness": 0.4483,
+        "clip": {
+          "from": 0.0508,
+          "to": 0.3789,
+          "height": 1.154,
+          "colour": "#6656a4",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/sprint-3.webp",
         "colour": "#a08174",
         "aspect": 0.1133,
         "axis": 0.7414,
-        "thickness": 0.4483
+        "thickness": 0.4483,
+        "clip": {
+          "from": 0.0508,
+          "to": 0.3789,
+          "height": 1.154,
+          "colour": "#a47561",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/sprint-4.webp",
         "colour": "#4caf6d",
         "aspect": 0.1133,
         "axis": 0.7414,
-        "thickness": 0.4483
+        "thickness": 0.4483,
+        "clip": {
+          "from": 0.0508,
+          "to": 0.3789,
+          "height": 1.154,
+          "colour": "#50b070",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/sprint-5.webp",
         "colour": "#507dbc",
         "aspect": 0.1133,
         "axis": 0.7414,
-        "thickness": 0.4483
+        "thickness": 0.4483,
+        "clip": {
+          "from": 0.0527,
+          "to": 0.3789,
+          "height": 1.154,
+          "colour": "#4473b7",
+          "opacity": 0.91
+        }
       },
       {
         "src": "assets/pens/sprint-6.webp",
         "colour": "#4cb5b1",
         "aspect": 0.1133,
         "axis": 0.7414,
-        "thickness": 0.4483
+        "thickness": 0.4483,
+        "clip": {
+          "from": 0.0527,
+          "to": 0.3789,
+          "height": 1.154,
+          "colour": "#47b6b1",
+          "opacity": 0.91
+        }
       }
     ]
   }

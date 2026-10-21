@@ -108,6 +108,7 @@ button {
   min-height: 0;
 }
 
+#scene,
 #desk {
   position: absolute;
   inset: 0;
@@ -115,6 +116,10 @@ button {
   height: 100%;
   touch-action: none;
   display: block;
+}
+
+#scene[hidden] {
+  display: none;
 }
 
 .overlay {

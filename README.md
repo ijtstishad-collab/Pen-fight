@@ -3,6 +3,10 @@
 A flick-pen duel on a school desk, in the browser. Flick your pen, knock the other pen off the desk, keep yours on.
 Play the computer (easy / normal / hard) or a friend on the same device.
 
+The desk and pens are rendered in 3D (three.js): each pen is a modelled barrel wrapped in its real artwork, with its
+clip, lighting and shadows, and knocked-off pens tumble to the floor. Browsers without WebGL get the flat 2D view,
+which you can also force with `?2d` on the URL.
+
 Pick your pen from 72 real **Fresh** ball pens in 12 lines: Icon, Icon Signature, InkForce, Pastello, Allrounder,
 Emoji, Shine, Sailor, Classroom, Campus, Good Day and Sprint. Against the computer, it plays a random pen from
 another line. Your choice is remembered in the browser.
@@ -33,10 +37,12 @@ off and you lose it, even if you took theirs with you. The first to the chosen n
 | --- | --- |
 | `physics.js` | Capsule rigid-body physics: sliding friction, spin, pen-to-pen collisions, falling off the desk. |
 | `ai.js` | Computer opponent: simulates candidate flicks with the same physics and plays the best one, with aim error per difficulty. |
-| `game.js` | Canvas rendering, pointer input (mouse and touch), turns, rounds and scoring. Portrait screens get the desk rotated. |
+| `game.js` | Pointer input (mouse and touch), turns, rounds, scoring, the aim overlay and the 2D fallback view. |
+| `render3d.js` | 3D view: desk, lighting, pen models built from the sprites, falling pens, and the camera fit (portrait screens look along the desk). |
+| `vendor/three.min.js` | three.js r149 (MIT), bundled so the game needs no build step or network. |
 | `index.html`, `style.css` | Page, menu, pen picker, scoreboard and result dialog. |
 | `pens.js`, `assets/pens/` | Generated pen manifest and sprites (one WebP per pen, lying flat, tip pointing right). |
-| `scripts/build_pens.py` | Cuts the brand artwork into those sprites and measures each pen's colour and barrel position. |
+| `scripts/build_pens.py` | Cuts the brand artwork into those sprites and measures each pen's colour, barrel position and clip. |
 
 ### Regenerating the pen sprites
 

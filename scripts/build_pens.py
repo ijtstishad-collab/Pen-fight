@@ -101,6 +101,32 @@ def barrel(flat):
     return round((top + bottom) / 2 / h, 4), round((bottom - top) / h, 4)
 
 
+def clip(flat, axis, thickness):
+    """Where the pocket clip rises above the barrel: span along the pen, height (in barrel thicknesses), colour."""
+    img = flat.load()
+    w, h = flat.size
+    top = round((axis - thickness / 2) * h)
+    th = max(1, thickness * h)
+    cols, tops = [], []
+    for x in range(w):
+        y = next((y for y in range(h) if img[x, y][3] > 60), None)
+        if y is not None and y < top - 0.2 * th:
+            cols.append(x)
+            tops.append(y)
+    if len(cols) < w * 0.04:
+        return None
+    rgba = [img[x, y] for x, t in zip(cols, tops) for y in range(t, top) if img[x, y][3] > 60]
+    n = max(1, len(rgba))
+    r, g, b, a = (sum(c[i] for c in rgba) // n for i in range(4))
+    return {
+        "from": round(min(cols) / w, 4),
+        "to": round(max(cols) / w, 4),
+        "height": round((top - min(tops)) / th, 3),
+        "colour": "#%02x%02x%02x" % (r, g, b),
+        "opacity": round(a / 255, 2),
+    }
+
+
 def main(src):
     os.makedirs(OUT, exist_ok=True)
     manifest = []
@@ -123,6 +149,7 @@ def main(src):
                 "aspect": round(flat.height / flat.width, 4),
                 "axis": axis,
                 "thickness": thickness,
+                "clip": clip(flat, axis, thickness),
             })
         manifest.append({"id": line_id, "name": name, "pens": entries})
         print(f"{line_id}: {len(entries)} pens")

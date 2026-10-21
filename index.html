@@ -22,6 +22,7 @@
     </header>
 
     <main id="stage">
+      <canvas id="scene" aria-hidden="true"></canvas>
       <canvas id="desk" aria-label="School desk with two pens"></canvas>
 
       <section id="menu" class="overlay">
@@ -77,9 +78,11 @@
       </section>
     </main>
 
+    <script src="vendor/three.min.js"></script>
     <script src="pens.js"></script>
     <script src="physics.js"></script>
     <script src="ai.js"></script>
+    <script src="render3d.js"></script>
     <script src="game.js"></script>
   </body>
 </html>

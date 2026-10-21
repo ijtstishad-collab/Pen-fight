@@ -155,6 +155,8 @@
     ui.name[1].textContent = playerName(1);
   }
 
+  let r3d = null; // 3D view, when WebGL is available
+  let dpr = 1;
   let view = new DOMMatrix();
   let viewInv = new DOMMatrix();
   let grain = null;
@@ -162,11 +164,12 @@
   // ---------- layout ----------
 
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
     const cw = canvas.clientWidth;
     const ch = canvas.clientHeight;
     canvas.width = Math.round(cw * dpr);
     canvas.height = Math.round(ch * dpr);
+    if (r3d) r3d.resize(cw, ch);
     // Portrait screens get the desk turned sideways so it stays large.
     const portrait = ch > cw * 1.15;
     const s = portrait ? Math.min(cw / WORLD.h, ch / WORLD.w) : Math.min(cw / WORLD.w, ch / WORLD.h);
@@ -176,12 +179,18 @@
       .scale(s)
       .translate(-WORLD.w / 2, -WORLD.h / 2);
     viewInv = view.inverse();
-    ctx.setTransform(new DOMMatrix().scale(dpr).multiply(view));
   }
 
   function toWorld(evt) {
     const r = canvas.getBoundingClientRect();
+    if (r3d) return r3d.toWorld(evt.clientX - r.left, evt.clientY - r.top, P.PEN.radius);
     const pt = viewInv.transformPoint(new DOMPoint(evt.clientX - r.left, evt.clientY - r.top));
+    return { x: pt.x, y: pt.y };
+  }
+
+  function toScreen(x, y) {
+    if (r3d) return r3d.toScreen(x, y, P.PEN.radius);
+    const pt = view.transformPoint(new DOMPoint(x, y));
     return { x: pt.x, y: pt.y };
   }
 
@@ -599,39 +608,41 @@
     ctx.restore();
   }
 
+  // Drawn in screen space over either view, so it reads the same in 2D and 3D.
   function drawAim(pen, s, cur, power, dx, dy) {
-    const g = grabPoint(pen, s);
+    const gw = grabPoint(pen, s);
+    const g = toScreen(gw.x, gw.y);
     const hue = 120 - power * 120; // green → red
     const color = `hsl(${hue} 85% 55%)`;
 
     if (cur) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+      const c = toScreen(cur.x, cur.y);
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)';
       ctx.setLineDash([5, 6]);
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(g.x, g.y);
-      ctx.lineTo(cur.x, cur.y);
+      ctx.lineTo(c.x, c.y);
       ctx.stroke();
       ctx.setLineDash([]);
     }
 
     const n = Math.hypot(dx, dy) || 1;
     const len = 40 + power * 170;
-    const ex = g.x + (dx / n) * len;
-    const ey = g.y + (dy / n) * len;
+    const e = toScreen(gw.x + (dx / n) * len, gw.y + (dy / n) * len);
     ctx.strokeStyle = color;
     ctx.lineWidth = 5;
     ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(g.x, g.y);
-    ctx.lineTo(ex, ey);
+    ctx.lineTo(e.x, e.y);
     ctx.stroke();
-    const ang = Math.atan2(dy, dx);
+    const ang = Math.atan2(e.y - g.y, e.x - g.x);
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.moveTo(ex + Math.cos(ang) * 14, ey + Math.sin(ang) * 14);
-    ctx.lineTo(ex + Math.cos(ang + 2.4) * 12, ey + Math.sin(ang + 2.4) * 12);
-    ctx.lineTo(ex + Math.cos(ang - 2.4) * 12, ey + Math.sin(ang - 2.4) * 12);
+    ctx.moveTo(e.x + Math.cos(ang) * 14, e.y + Math.sin(ang) * 14);
+    ctx.lineTo(e.x + Math.cos(ang + 2.4) * 12, e.y + Math.sin(ang + 2.4) * 12);
+    ctx.lineTo(e.x + Math.cos(ang - 2.4) * 12, e.y + Math.sin(ang - 2.4) * 12);
     ctx.closePath();
     ctx.fill();
 
@@ -642,14 +653,18 @@
   }
 
   function render(now) {
-    ctx.save();
-    drawDesk();
-    // Fallen pens render under the ones still on the desk.
-    const order = game.pens.slice().sort((a, b) => Number(b.out) - Number(a.out));
-    for (const pen of order) {
-      const mine = game.state === 'aim' && pen.owner === game.current && !game.drag;
-      const pulse = mine && Math.sin(now / 250) > 0;
-      drawPen(pen, pulse);
+    const glowOwner = game.state === 'aim' && !game.drag ? game.current : -1;
+    if (r3d) {
+      r3d.render(game.pens, glowOwner, now);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    } else {
+      ctx.setTransform(new DOMMatrix().scale(dpr).multiply(view));
+      drawDesk();
+      // Fallen pens render under the ones still on the desk.
+      const order = game.pens.slice().sort((a, b) => Number(b.out) - Number(a.out));
+      for (const pen of order) drawPen(pen, pen.owner === glowOwner && Math.sin(now / 250) > 0);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     if (game.drag) {
       const pen = game.pens[game.current];
@@ -663,7 +678,6 @@
       const t = Math.min(1, (now - start) / dur);
       drawAim(game.pens[game.current], shot.s, null, shot.power * t, shot.dx, shot.dy);
     }
-    ctx.restore();
   }
 
   // ---------- loop ----------
@@ -693,6 +707,10 @@
     requestAnimationFrame(frame);
   }
 
+  if (window.PenRender3D && !/[?&]2d\b/.test(location.search)) {
+    r3d = window.PenRender3D.create(el('scene'), penInfo, sprite);
+  }
+  if (!r3d) el('scene').hidden = true;
   window.addEventListener('resize', resize);
   resize();
   renderPickers();
@@ -701,5 +719,6 @@
     P.makePen(DESK.x + DESK.w * 0.3, DESK.y + DESK.h / 2, Math.PI / 2 - 0.2, 0),
     P.makePen(DESK.x + DESK.w * 0.7, DESK.y + DESK.h / 2, Math.PI / 2 + 0.2, 1),
   ];
+  window.PenFight = { game, toScreen }; // for debugging and browser tests
   requestAnimationFrame(frame);
 })();
