@@ -1,0 +1,14 @@
+# Static site: no build step, publish the prepared site/ folder.
+[build]
+  publish = "site"
+  command = "sh scripts/netlify-site.sh"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/vendor/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, immutable"

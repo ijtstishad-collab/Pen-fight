@@ -60,7 +60,7 @@ Opening `index.html` directly from disk also works, but serve it over http(s) fo
 
 - Use the ⛶ button for full screen. On phones, "Add to Home Screen" opens it full screen too.
 - The menu runs side by side on wide screens and stacked on phones; portrait phones look along the desk.
-- `og.png` is the link preview image. Social sites need absolute URLs, so set `og:image` to the full URL once hosted.
+- Live at https://fresh-pen-fight.netlify.app (Netlify project `fresh-pen-fight`). `og.png` is the link preview image; the `og:`/`twitter:` tags point at that host, so update them if it moves.
 
 ## How to play
 
