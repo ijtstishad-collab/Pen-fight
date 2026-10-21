@@ -117,8 +117,9 @@
     renderer.shadowMap.type = T.PCFSoftShadowMap;
 
     const scene = new T.Scene();
-    scene.background = new T.Color('#2b2118');
-    scene.fog = new T.Fog('#2b2118', 16, 34);
+    // A bright classroom: mint floor fading into a light backdrop.
+    scene.background = new T.Color('#bfe9e2');
+    scene.fog = new T.Fog('#bfe9e2', 16, 34);
     const camera = new T.PerspectiveCamera(36, 1, 0.1, 100);
 
     scene.add(new T.HemisphereLight('#fff4e2', '#3a2a1c', 0.6));
@@ -213,14 +214,18 @@
     }
 
     const tiles = canvasTexture(256, 256, (g, w, h) => {
-      g.fillStyle = '#3a2d22';
+      // Two-tone checker tiles.
+      g.fillStyle = '#8fd6c9';
       g.fillRect(0, 0, w, h);
-      g.strokeStyle = 'rgba(255,255,255,0.06)';
-      g.lineWidth = 4;
+      g.fillStyle = '#a7e0d5';
+      g.fillRect(0, 0, w / 2, h / 2);
+      g.fillRect(w / 2, h / 2, w / 2, h / 2);
+      g.strokeStyle = 'rgba(255,255,255,0.35)';
+      g.lineWidth = 3;
       g.strokeRect(0, 0, w, h);
     });
     tiles.wrapS = tiles.wrapT = T.RepeatWrapping;
-    tiles.repeat.set(30, 30);
+    tiles.repeat.set(20, 20);
     const floor = new T.Mesh(new T.PlaneGeometry(60, 60), new T.MeshStandardMaterial({ map: tiles, roughness: 0.9 }));
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = FLOOR_Y;

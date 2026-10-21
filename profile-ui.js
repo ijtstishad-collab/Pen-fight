@@ -307,6 +307,25 @@
     );
   }
 
+  // Animates the chip's number up to the current balance after points were earned.
+  function countUp(gained) {
+    const chip = $('profile-chip');
+    const p = active();
+    if (!chip || !p) return;
+    const label = chip.querySelector('.chip-points');
+    const from = Math.max(0, p.points - gained);
+    const start = performance.now();
+    chip.classList.remove('bump');
+    void chip.offsetWidth; // restart the animation
+    chip.classList.add('bump');
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / 700);
+      if (label) label.textContent = `${fmt(Math.round(from + (p.points - from) * t))} pts`;
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
   // ---------- public ----------
 
   function init(opts) {
@@ -336,5 +355,5 @@
     return active() ? Promise.resolve(active()) : openForm({ required: true });
   }
 
-  root.PenProfileUI = { init, active, award, openPanel, openShop, ensureProfile };
+  root.PenProfileUI = { init, active, award, openPanel, openShop, ensureProfile, countUp };
 })(window);

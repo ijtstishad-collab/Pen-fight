@@ -1,5 +1,5 @@
 :root {
-  --bg: #2b2118;
+  --bg: #3a1a6b;
   --ink: #f6efe1;
   --muted: #cbbba0;
   --card: #fbf6ea;
@@ -18,7 +18,7 @@ html,
 body {
   margin: 0;
   height: 100%;
-  background: var(--bg);
+  background: radial-gradient(ellipse at 20% 0%, #7a2fd0 0%, transparent 55%), radial-gradient(ellipse at 100% 100%, #e0314f 0%, transparent 50%), var(--bg);
   color: var(--ink);
   font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
@@ -200,9 +200,10 @@ legend {
 }
 
 .choices button.selected {
-  border-color: var(--card-ink);
-  background: var(--card-ink);
-  color: var(--card);
+  border-color: transparent;
+  background: linear-gradient(135deg, #6a3fd1, #d1252b);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(122, 47, 208, 0.3);
 }
 
 .primary {
@@ -1720,4 +1721,268 @@ legend {
   .hud {
     gap: 6px;
   }
+}
+
+/* ---------- brand and colour ---------- */
+
+/* Light cards use light form controls, so typed text is dark and visible. */
+.card,
+.sheet-card,
+.quiz-card,
+.viewer-card {
+  color-scheme: light;
+}
+
+.pf-form input[type='text'] {
+  color: var(--card-ink);
+}
+
+.hud {
+  grid-template-columns: auto minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr) auto;
+  background: linear-gradient(90deg, #4b1f8a, #a61d55 55%, #e4572e);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 2;
+}
+
+.brand-logo {
+  display: block;
+  height: 38px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.brand-logo img {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+.turn {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.score b {
+  min-width: 1.6em;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.profile-chip {
+  background: linear-gradient(135deg, #f0b429, #f07d1f);
+  color: #2b2118;
+}
+
+.icon-button {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.lines button[aria-selected="true"] {
+  border-color: transparent;
+  background: linear-gradient(135deg, #f07d1f, #d1252b);
+  color: #fff;
+}
+
+.primary {
+  background: linear-gradient(135deg, #ffcf3a, #f59a1b);
+  box-shadow: 0 4px 14px rgba(245, 154, 27, 0.35);
+}
+
+legend {
+  color: #7a2fd0;
+}
+
+.overlay {
+  background: rgba(40, 12, 70, 0.45);
+}
+
+@media (max-width: 520px) {
+  .brand-logo {
+    height: 30px;
+    padding: 2px 5px;
+  }
+  .hud {
+    padding: 6px 10px;
+  }
+}
+
+/* ---------- callouts and points ---------- */
+
+.callout {
+  position: absolute;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  font-size: clamp(1.6rem, 5vw, 2.8rem);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  color: #fff;
+  -webkit-text-stroke: 2px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.18), 0 8px 18px rgba(0, 0, 0, 0.3);
+  animation: callout 1.35s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.callout.ko {
+  font-size: clamp(2.2rem, 7vw, 3.8rem);
+  color: #ffd43b;
+  -webkit-text-stroke: 2px #c4183c;
+}
+
+.callout.hit {
+  color: #ff7a1f;
+  -webkit-text-stroke: 2px #fff;
+}
+
+.callout.oops {
+  color: #ff5c7a;
+  -webkit-text-stroke: 2px #fff;
+}
+
+.callout.close {
+  color: #b26bff;
+  -webkit-text-stroke: 2px #fff;
+}
+
+.callout.spin {
+  color: #2fd3c0;
+  -webkit-text-stroke: 2px #1d4a94;
+}
+
+.callout.nice {
+  color: #3cd46e;
+  -webkit-text-stroke: 2px #fff;
+}
+
+.callout.soft {
+  font-size: clamp(1.2rem, 3.6vw, 1.9rem);
+  color: #fff;
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes callout {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2) rotate(-8deg);
+    opacity: 0;
+  }
+  18% {
+    transform: translate(-50%, -50%) scale(1.15) rotate(-4deg);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1) rotate(-4deg);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -110%) scale(1) rotate(-4deg);
+    opacity: 0;
+  }
+}
+
+.points-burst {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 20;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffcf3a, #f07d1f);
+  color: #2b2118;
+  font-size: 2rem;
+  font-weight: 900;
+  white-space: nowrap;
+  box-shadow: 0 10px 30px rgba(240, 125, 31, 0.5);
+  pointer-events: none;
+}
+
+.profile-chip.bump {
+  animation: chip-bump 0.7s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+@keyframes chip-bump {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.3);
+    box-shadow: 0 0 0 6px rgba(255, 207, 58, 0.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.result-points.earned {
+  border: 2px solid #ffcf3a;
+  background: linear-gradient(135deg, #fff4c2, #ffe0b8);
+}
+
+.result-points.earned b {
+  font-size: 1.9rem;
+  line-height: 1.1;
+  background: linear-gradient(90deg, #f07d1f, #d1252b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .callout,
+  .profile-chip.bump {
+    animation-duration: 0.01s;
+  }
+}
+
+.callout.taunt {
+  padding: 8px 14px;
+  border-radius: 16px;
+  background: #fff;
+  color: #2b2118;
+  font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+  font-style: normal;
+  font-weight: 700;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  animation: taunt 1.6s ease-out both;
+}
+
+.callout.taunt::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  border: 8px solid transparent;
+  border-bottom: 0;
+  border-top-color: #fff;
+  transform: translateX(-50%);
+}
+
+@keyframes taunt {
+  0% {
+    transform: translate(-50%, -130%) scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    transform: translate(-50%, -150%) scale(1);
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -160%) scale(1);
+    opacity: 0;
+  }
+}
+
+.actions button.primary {
+  background: linear-gradient(135deg, #ffcf3a, #f59a1b);
+  box-shadow: 0 4px 14px rgba(245, 154, 27, 0.35);
 }

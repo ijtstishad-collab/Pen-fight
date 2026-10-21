@@ -13,6 +13,10 @@ accurately:
 \*Measured in simulation against a stand-in "casual human"; a test keeps Hard well ahead of Easy. Each opponent has
 its own aiming pace and lines in the top bar and on the result card.
 
+**Live reactions.** Shots get big pop-up callouts on the desk ("BAM!", "KNOCKOUT!", "Ooops!", "So close!",
+"What a spin!", "Too soft!"), the computer talks in speech bubbles while it aims, and points earned burst across the
+screen into the points badge, which counts up.
+
 **Friend mode** shows a "your turn" card with the player's name and pen at every handover, and a glow marks the pen
 to flick. Pens are easy to grab with a finger: the grab area is measured on screen, extra generous for touch.
 
@@ -85,6 +89,9 @@ quiz live in `pen-stats.js`; `physics.js` (`tuning`) turns stats into mass, laun
 Pick your pen from 72 real **Fresh** ball pens in 12 lines: Icon, Icon Signature, InkForce, Pastello, Allrounder,
 Emoji, Shine, Sailor, Classroom, Campus, Good Day and Sprint. Against the computer, it plays a random pen from
 another line. Your choice is remembered in the browser.
+
+The top-left logo is the Fresh Stationery logo from the brand's YouTube channel
+(`assets/brand/fresh-stationery.webp`); it links to the channel.
 
 ## Play
 

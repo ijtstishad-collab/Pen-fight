@@ -545,10 +545,21 @@
       list.append(li);
     }
     const head = document.createElement('b');
-    head.textContent = `+${total} points`;
-    box.className = 'result-points';
+    head.textContent = '+0 points';
+    box.className = 'result-points earned';
     box.replaceChildren(head, list);
     box.hidden = false;
+    // Count the headline up once the card is showing, and send the points flying to the chip.
+    setTimeout(() => {
+      const start = performance.now();
+      const step = (now) => {
+        const t = Math.min(1, (now - start) / 900);
+        head.textContent = `+${Math.round(total * (1 - Math.pow(1 - t, 3)))} points`;
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+      celebratePoints(total);
+    }, 750);
   }
 
   function isHuman(i) {
@@ -626,9 +637,86 @@
     } else {
       game.state = 'ai';
       const opp = opponent();
-      setTurn(opp ? `${opp.avatar} “${pickLine(opp.aiming)}”` : 'Computer is aiming…');
+      setTurn(opp ? `${opp.avatar} ${opp.name} is aiming…` : 'Computer is aiming…');
+      if (opp) {
+        // The opponent talks: a speech bubble over its pen.
+        const pen = game.pens[game.current];
+        callout(pickLine(opp.aiming), pen.x, pen.y, 'taunt');
+      }
       setTimeout(runAI, 350);
     }
+  }
+
+  // ---------- callouts ----------
+
+  // Big pop-up word on the desk at a world position: "KNOCKOUT!", "Ooops!", "Nice shot!"…
+  function callout(text, x, y, kind) {
+    const stage = el('stage');
+    const pt = toScreen(x, y);
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    const div = document.createElement('div');
+    div.className = `callout ${kind || ''}`;
+    div.textContent = text;
+    div.style.left = `${Math.min(w - 90, Math.max(90, pt.x))}px`;
+    div.style.top = `${Math.min(h - 50, Math.max(60, pt.y - 30))}px`;
+    stage.append(div);
+    setTimeout(() => div.remove(), kind === 'taunt' ? 1700 : 1400);
+  }
+
+  // After every shot, say something about how it went.
+  function reactToShot(me, foe) {
+    const shot = game.shot;
+    if (!shot) return;
+    game.shot = null;
+    if (me.out && foe.out) callout('DOUBLE KO!', me.x, me.y, 'ko');
+    else if (foe.out) {
+      callout('KNOCKOUT!', foe.x, foe.y, 'ko');
+      blip(990, 0.12, 0.2);
+    } else if (me.out) callout(pickLine(['Ooops!', 'Whoops!', 'Uh-oh!']), me.x, me.y, 'oops');
+    else if (P.edgeDistance(foe) < 55) callout(pickLine(['So close!', 'Almost!', 'On the edge!']), foe.x, foe.y, 'close');
+    else if (P.edgeDistance(me) < 40) callout('Close call!', me.x, me.y, 'close');
+    else if (shot.maxSpin > 9) callout('What a spin!', me.x, me.y, 'spin');
+    else if (shot.maxHit > 120 && !shot.called) callout(pickLine(['Nice shot!', 'Good hit!', 'Boom!']), foe.x, foe.y, 'nice');
+    else if (shot.maxHit === 0 && shot.power < 0.45) callout('Too soft!', me.x, me.y, 'soft');
+    else if (shot.maxHit === 0) callout('Missed!', me.x, me.y, 'soft');
+  }
+
+  // Points earned: a "+N" burst that flies into the points chip, which then counts up.
+  function celebratePoints(total) {
+    const chip = el('profile-chip');
+    if (!chip || !total) return;
+    const stage = el('stage').getBoundingClientRect();
+    const target = chip.getBoundingClientRect();
+    const burst = document.createElement('div');
+    burst.className = 'points-burst';
+    burst.textContent = `+${total} pts`;
+    document.body.append(burst);
+    const sx = stage.left + stage.width / 2;
+    const sy = stage.top + stage.height * 0.38;
+    const tx = target.left + target.width / 2;
+    const ty = target.top + target.height / 2;
+    const calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const anim = burst.animate(
+      [
+        { transform: `translate(${sx}px, ${sy}px) translate(-50%, -50%) scale(0.4)`, opacity: 0 },
+        { transform: `translate(${sx}px, ${sy}px) translate(-50%, -50%) scale(1.25)`, opacity: 1, offset: 0.25 },
+        { transform: `translate(${sx}px, ${sy}px) translate(-50%, -50%) scale(1)`, opacity: 1, offset: 0.55 },
+        { transform: `translate(${tx}px, ${ty}px) translate(-50%, -50%) scale(0.35)`, opacity: 0.2 },
+      ],
+      { duration: calm ? 10 : 1300, easing: 'cubic-bezier(0.4, 0, 0.2, 1)' }
+    );
+    // Finish on the animation's end, with a timer as a fallback (finish events are not guaranteed).
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      burst.remove();
+      if (window.PenProfileUI && window.PenProfileUI.countUp) window.PenProfileUI.countUp(total);
+      blip(1180, 0.1, 0.15);
+    };
+    anim.onfinish = finish;
+    setTimeout(finish, (calm ? 10 : 1300) + 100);
   }
 
   // Same-device play: a big "pass it over" banner so both players always know whose turn it is.
@@ -679,6 +767,8 @@
 
   function shoot(pen, s, dx, dy, power) {
     game.beforeShot = P.clonePens(game.pens); // what a revive puts back
+    // What happens during this shot, for the callouts afterwards.
+    game.shot = { by: pen.owner, power, maxHit: 0, maxSpin: 0, called: false };
     P.flick(pen, s, dx, dy, power);
     game.shooter = pen.owner;
     game.state = 'moving';
@@ -691,6 +781,7 @@
     P.settle(game.pens);
     const me = game.pens[game.shooter];
     const foe = game.pens[1 - game.shooter];
+    reactToShot(me, foe);
     let winner = -1;
     let reason = '';
     if (me.out) {
@@ -938,7 +1029,7 @@
   }
 
   function drawDesk() {
-    ctx.fillStyle = '#2b2118';
+    ctx.fillStyle = '#bfe9e2';
     ctx.fillRect(-2000, -2000, WORLD.w + 4000, WORLD.h + 4000);
 
     // Floor tiles beneath the desk.
@@ -1235,6 +1326,17 @@
       while (acc >= STEP && steps < 16) {
         const hit = P.step(game.pens, STEP);
         if (hit > 60) blip(330 + Math.min(hit, 900) * 0.3, Math.min(0.25, hit / 3000), 0.06);
+        const shot = game.shot;
+        if (shot && game.state === 'moving') {
+          shot.maxHit = Math.max(shot.maxHit, hit);
+          shot.maxSpin = Math.max(shot.maxSpin, Math.abs(game.pens[shot.by].w));
+          if (hit > 300 && !shot.called) {
+            // A big hit: shout it out where the pens met.
+            shot.called = true;
+            const [a, b] = game.pens;
+            callout(pickLine(['BAM!', 'WHAM!', 'SMASH!']), (a.x + b.x) / 2, (a.y + b.y) / 2, 'hit');
+          }
+        }
         acc -= STEP;
         steps++;
       }
