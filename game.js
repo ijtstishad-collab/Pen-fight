@@ -27,6 +27,7 @@
     resultTitle: el('result-title'),
     resultText: el('result-text'),
     resultNext: el('result-next'),
+    resultPoints: el('result-points'),
     revive: el('revive'),
     reviveButton: el('revive-button'),
     reviveWho: el('revive-who'),
@@ -248,7 +249,8 @@
         img.src = pen.src;
         img.alt = '';
         b.append(img);
-        b.onclick = () => choosePick(player, pick.line, i);
+        // Tapping the pen that is already chosen opens it in the 360° viewer.
+        b.onclick = () => (i === pick.pen ? view360(player) : choosePick(player, pick.line, i));
         return b;
       })
     );
@@ -346,6 +348,14 @@
     ask(0);
   }
 
+  function view360(player) {
+    const info = penInfo(player);
+    if (!info || !window.PenViewer) return;
+    const title = document.createElement('span');
+    title.innerHTML = `<span class="fresh">Fresh</span> ${info.lineName}`;
+    window.PenViewer.open({ info, title, detail: statPanel(penStats(player), { compact: true }) });
+  }
+
   function renderPickers() {
     if (!LINES.length) {
       for (const p of document.querySelectorAll('.picker')) p.hidden = true;
@@ -424,9 +434,58 @@
 
   // ---------- flow ----------
 
+  function profile() {
+    return window.PenProfileUI ? window.PenProfileUI.active() : null;
+  }
+
   function playerName(i) {
-    if (game.mode === 'friend') return LINES.length ? `Player ${i + 1}` : COLORS[i].name;
-    return i === 0 ? 'You' : 'Computer';
+    const p = profile();
+    if (game.mode === 'friend') return i === 0 && p ? p.name : LINES.length ? `Player ${i + 1}` : COLORS[i].name;
+    return i === 0 ? (p ? p.name : 'You') : 'Computer';
+  }
+
+  function showNames() {
+    const p = profile();
+    ui.name[0].textContent = (p ? `${p.avatar} ` : '') + playerName(0);
+    ui.name[1].textContent = playerName(1);
+  }
+
+  // A lost match pays its small "played" reward only once the player moves on,
+  // because watching an ad to revive can turn the loss around.
+  function settleLostMatch() {
+    if (!game.pendingLoss) return;
+    game.pendingLoss = false;
+    if (window.PenProfileUI) window.PenProfileUI.award('match-loss', game.mode);
+  }
+
+  function showPoints(items) {
+    const box = ui.resultPoints;
+    if (game.mode === 'friend') {
+      box.hidden = true;
+      return;
+    }
+    if (!profile()) {
+      box.replaceChildren('Create a profile to earn points for Fresh rewards.');
+      box.className = 'result-points guest';
+      box.hidden = false;
+      return;
+    }
+    if (!items.length) {
+      box.hidden = true;
+      return;
+    }
+    const total = items.reduce((t, i) => t + i.amount, 0);
+    const list = document.createElement('ul');
+    for (const i of items) {
+      const li = document.createElement('li');
+      li.textContent = `${i.reason} +${i.amount}`;
+      list.append(li);
+    }
+    const head = document.createElement('b');
+    head.textContent = `+${total} points`;
+    box.className = 'result-points';
+    box.replaceChildren(head, list);
+    box.hidden = false;
   }
 
   function isHuman(i) {
@@ -437,10 +496,10 @@
     game.scores = [0, 0];
     game.round = 0;
     game.starter = 0;
+    settleLostMatch();
     if (LINES.length && game.mode !== 'friend') game.picks[1] = computerPick();
     applyPenColours();
-    ui.name[0].textContent = playerName(0);
-    ui.name[1].textContent = playerName(1);
+    showNames();
     ui.menu.hidden = true;
     if (r3d) r3d.intro();
     showVersus();
@@ -566,6 +625,17 @@
     else title = game.mode === 'friend' ? `${playerName(winner)} takes the round` : wonByYou ? 'Round to you' : 'Round to the computer';
     ui.resultTitle.textContent = title;
     ui.resultText.textContent = `${reason} Score ${game.scores[0]}–${game.scores[1]}.`;
+    // Points: rounds and matches won against the computer.
+    const earned = [];
+    if (game.mode !== 'friend' && window.PenProfileUI) {
+      if (winner === 0) {
+        earned.push(...window.PenProfileUI.award('round', game.mode));
+        if (matchOver) earned.push(...window.PenProfileUI.award('match-win', game.mode));
+      } else if (matchOver) {
+        game.pendingLoss = true;
+      }
+    }
+    showPoints(earned);
     ui.resultNext.textContent = matchOver ? 'Rematch' : 'Next round';
     ui.resultNext.onclick = matchOver ? startMatch : startRound;
     // A human who just lost their pen can watch an ad to put it back, once per round.
@@ -597,6 +667,7 @@
     const { winner, starter } = game.lastRound;
     game.scores[winner]--;
     game.starter = starter;
+    game.pendingLoss = false; // the match goes on
     game.revived = true;
     updateScores();
     for (const pen of game.pens) {
@@ -636,6 +707,7 @@
   }
 
   function openMenu() {
+    settleLostMatch();
     game.state = 'menu';
     game.drag = null;
     ui.result.hidden = true;
@@ -710,6 +782,9 @@
   el('result-menu').addEventListener('click', openMenu);
   el('start').addEventListener('click', startMatch);
   el('revive-button').addEventListener('click', watchToRevive);
+  for (const btn of document.querySelectorAll('.view-360')) {
+    btn.addEventListener('click', () => view360(Number(btn.closest('.picker').dataset.player)));
+  }
   for (const btn of document.querySelectorAll('.quiz-open')) {
     btn.addEventListener('click', () => openQuiz(Number(btn.closest('.picker').dataset.player)));
   }
@@ -1072,6 +1147,11 @@
     P.makePen(DESK.x + DESK.w * 0.3, DESK.y + DESK.h / 2, Math.PI / 2 - 0.2, 0, penStats(0)),
     P.makePen(DESK.x + DESK.w * 0.7, DESK.y + DESK.h / 2, Math.PI / 2 + 0.2, 1, penStats(1)),
   ];
-  window.PenFight = { game, toScreen }; // for debugging and browser tests
+  if (window.PenProfileUI) {
+    window.PenProfileUI.init({ onChange: showNames });
+    window.PenProfileUI.ensureProfile().then(showNames);
+  }
+  showNames();
+  window.PenFight = { game, toScreen, celebrate: () => confetti(140) }; // for debugging and browser tests
   requestAnimationFrame(frame);
 })();

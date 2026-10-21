@@ -33,6 +33,7 @@
         <b id="score-1">0</b><span class="name" id="name-1">Computer</span><span class="swatch"></span>
       </div>
       <div class="hud-actions">
+        <button id="profile-chip" class="profile-chip" type="button" aria-label="Profile"></button>
         <button id="fullscreen-button" class="icon-button" type="button" aria-label="Full screen" title="Full screen">⛶</button>
         <button id="menu-button" class="icon-button" type="button" aria-label="Menu" title="Menu">☰</button>
       </div>
@@ -82,6 +83,7 @@
               <p class="style-blurb"></p>
               <div class="lines" role="tablist" aria-label="Pen line"></div>
               <div class="tray"></div>
+              <button class="view-360" type="button">🔍 View this pen in 360°</button>
               <div class="stats"></div>
             </fieldset>
             <fieldset class="picker" data-player="1" hidden>
@@ -94,6 +96,7 @@
               <p class="style-blurb"></p>
               <div class="lines" role="tablist" aria-label="Pen line"></div>
               <div class="tray"></div>
+              <button class="view-360" type="button">🔍 View this pen in 360°</button>
               <div class="stats"></div>
             </fieldset>
             <button id="start" class="primary" type="button">Play</button>
@@ -112,6 +115,7 @@
         <div class="card result-card">
           <h2 id="result-title"></h2>
           <p id="result-text"></p>
+          <div id="result-points" class="result-points" hidden></div>
           <div id="revive" class="revive" hidden>
             <button id="revive-button" class="revive-button" type="button">
               <span class="play" aria-hidden="true">▶</span>
@@ -125,6 +129,31 @@
         </div>
       </section>
     </main>
+
+    <section id="player-form" class="sheet" role="dialog" aria-modal="true" aria-label="Player" hidden>
+      <div class="sheet-card"><button class="sheet-x" type="button" aria-label="Close">✕</button><div class="sheet-body"></div></div>
+    </section>
+
+    <section id="profile" class="sheet" role="dialog" aria-modal="true" aria-label="Profile" hidden>
+      <div class="sheet-card"><button class="sheet-x" type="button" aria-label="Close">✕</button><div class="sheet-body"></div></div>
+    </section>
+
+    <section id="shop" class="sheet" role="dialog" aria-modal="true" aria-label="Fresh rewards" hidden>
+      <div class="sheet-card wide"><button class="sheet-x" type="button" aria-label="Close">✕</button><div class="sheet-body"></div></div>
+    </section>
+
+    <section id="viewer" class="viewer" role="dialog" aria-modal="true" aria-labelledby="viewer-title" hidden>
+      <div class="viewer-card">
+        <button id="viewer-close" class="sheet-x" type="button" aria-label="Close">✕</button>
+        <h2 id="viewer-title"></h2>
+        <div class="viewer-stage">
+          <canvas id="viewer-canvas" aria-label="3D pen, drag to rotate"></canvas>
+          <img id="viewer-fallback" alt="" hidden />
+          <p class="viewer-hint">Drag to spin · scroll or pinch to zoom · double-click to reset</p>
+        </div>
+        <div id="viewer-detail"></div>
+      </div>
+    </section>
 
     <section id="quiz" class="quiz" role="dialog" aria-modal="true" aria-label="Find my style" hidden>
       <div class="quiz-card">
@@ -158,6 +187,9 @@
     <script src="ai.js"></script>
     <script src="render3d.js"></script>
     <script src="ads.js"></script>
+    <script src="profile.js"></script>
+    <script src="profile-ui.js"></script>
+    <script src="viewer.js"></script>
     <script src="game.js"></script>
   </body>
 </html>

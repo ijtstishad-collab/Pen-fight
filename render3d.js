@@ -9,6 +9,97 @@
   const FLOOR_Y = -DESK_THICK - LEG_H;
   const ELEVATION = 60 * (Math.PI / 180); // camera angle above the desk
 
+  // ---------- pen model (shared by the desk view and the 360 viewer) ----------
+
+  // Radius along the pen, t = 0 at the cap end and 1 at the writing tip.
+  const PROFILE = [0, 0.003, 0.007, 0.012, 0.018];
+  for (let t = 0.03; t < 0.9; t += 0.02) PROFILE.push(t);
+  PROFILE.push(0.9, 0.93, 0.96, 0.985, 0.992, 0.997, 1);
+  function radiusAt(t, R) {
+    if (t < 0.018) return R * Math.sqrt(Math.max(0, 1 - ((0.018 - t) / 0.018) ** 2));
+    if (t <= 0.9) return R;
+    if (t <= 0.985) return R * (1 - ((t - 0.9) / 0.085) * 0.68);
+    return R * 0.32 * Math.sqrt(Math.max(0, 1 - ((t - 0.985) / 0.015) ** 2));
+  }
+
+  const geoCache = new Map();
+  function bodyGeometry(T, len, r) {
+    const key = `${len}:${r}`;
+    if (!geoCache.has(key)) {
+      const L = len * S;
+      const R = r * S;
+      const pts = PROFILE.map((t) => new T.Vector2(radiusAt(t, R), (t - 0.5) * L));
+      // phiStart = PI puts the middle of the artwork (u = 0.25) on top once the pen is laid down.
+      const geo = new T.LatheGeometry(pts, 40, Math.PI, Math.PI * 2);
+      const uv = geo.attributes.uv;
+      for (let i = 0; i <= 40; i++) {
+        for (let j = 0; j < PROFILE.length; j++) uv.setY(i * PROFILE.length + j, PROFILE[j]);
+      }
+      geo.computeVertexNormals();
+      geoCache.set(key, geo);
+    }
+    return geoCache.get(key);
+  }
+
+  // The sprite's barrel band, transposed so the pen runs down the texture; mirrored round the back.
+  function bodyTexture(T, img, info, anisotropy) {
+    const bandTop = (info.axis - info.thickness / 2) * img.naturalHeight;
+    const bandH = info.thickness * img.naturalHeight;
+    const c = document.createElement('canvas');
+    c.width = 64;
+    c.height = 512;
+    const g = c.getContext('2d');
+    g.setTransform(0, 1, 1, 0, 0, 0);
+    g.drawImage(img, 0, bandTop, img.naturalWidth, bandH, 0, 0, 512, 64);
+    const tex = new T.CanvasTexture(c);
+    tex.encoding = T.sRGBEncoding;
+    tex.anisotropy = anisotropy || 1;
+    tex.flipY = false;
+    tex.wrapS = T.MirroredRepeatWrapping;
+    tex.repeat.set(2, 1);
+    return tex;
+  }
+
+  // A pen lying along local X (cap at -X, tip at +X), clip on its -Z side.
+  // Pass `img` (a loaded sprite) to texture it now, or apply bodyTexture later.
+  function buildPen(T, info, img, len, r, opts) {
+    const group = new T.Group();
+    const mat = new T.MeshStandardMaterial({
+      color: info ? '#ffffff' : '#2f6fd6',
+      roughness: 0.38,
+      metalness: 0.05,
+      emissive: '#ffffff',
+      emissiveIntensity: 0,
+    });
+    if (img && info) mat.map = bodyTexture(T, img, info, opts && opts.anisotropy);
+    const body = new T.Mesh(bodyGeometry(T, len, r), mat);
+    body.rotation.z = -Math.PI / 2; // lathe axis (Y) along the pen (local X)
+    body.castShadow = !!(opts && opts.shadows);
+    group.add(body);
+
+    const clip = info && info.clip;
+    if (clip) {
+      const L = len * S;
+      const R = r * S;
+      // A slim bar hugging the barrel; how far it stood off in the artwork only sets how chunky it is.
+      const reach = R * (0.35 + Math.min(1, clip.height) * 0.25);
+      const box = new T.Mesh(
+        new T.BoxGeometry((clip.to - clip.from) * L, R * 0.55, reach),
+        new T.MeshStandardMaterial({
+          color: clip.colour,
+          roughness: 0.3,
+          transparent: clip.opacity < 0.9,
+          opacity: Math.max(0.55, clip.opacity),
+        })
+      );
+      // The clip is on the sprite's top edge, so it runs along the pen's left side.
+      box.position.set(-L / 2 + ((clip.from + clip.to) / 2) * L, R * 0.3, -(R + reach / 2) + R * 0.15);
+      box.castShadow = body.castShadow;
+      group.add(box);
+    }
+    return { group, body };
+  }
+
   function create(canvas, penInfo, loadedSprite) {
     const T = root.THREE;
     const P = root.PenPhysics;
@@ -138,50 +229,6 @@
 
     // ---------- pens ----------
 
-    // Radius along the pen, t = 0 at the cap end and 1 at the writing tip.
-    const PROFILE = [0, 0.003, 0.007, 0.012, 0.018];
-    for (let t = 0.03; t < 0.9; t += 0.02) PROFILE.push(t);
-    PROFILE.push(0.9, 0.93, 0.96, 0.985, 0.992, 0.997, 1);
-    function radiusAt(t, R) {
-      if (t < 0.018) return R * Math.sqrt(Math.max(0, 1 - ((0.018 - t) / 0.018) ** 2));
-      if (t <= 0.9) return R;
-      if (t <= 0.985) return R * (1 - ((t - 0.9) / 0.085) * 0.68);
-      return R * 0.32 * Math.sqrt(Math.max(0, 1 - ((t - 0.985) / 0.015) ** 2));
-    }
-
-    const geoCache = new Map();
-    function bodyGeometry(len, r) {
-      const key = `${len}:${r}`;
-      if (!geoCache.has(key)) {
-        const L = len * S;
-        const R = r * S;
-        const pts = PROFILE.map((t) => new T.Vector2(radiusAt(t, R), (t - 0.5) * L));
-        // phiStart = PI puts the middle of the artwork (u = 0.25) on top once the pen is laid down.
-        const geo = new T.LatheGeometry(pts, 40, Math.PI, Math.PI * 2);
-        const uv = geo.attributes.uv;
-        for (let i = 0; i <= 40; i++) {
-          for (let j = 0; j < PROFILE.length; j++) uv.setY(i * PROFILE.length + j, PROFILE[j]);
-        }
-        geo.computeVertexNormals();
-        geoCache.set(key, geo);
-      }
-      return geoCache.get(key);
-    }
-
-    // The sprite's barrel band, transposed so the pen runs down the texture; mirrored round the back.
-    function bodyTexture(img, info) {
-      const bandTop = (info.axis - info.thickness / 2) * img.naturalHeight;
-      const bandH = info.thickness * img.naturalHeight;
-      const tex = canvasTexture(64, 512, (g) => {
-        g.setTransform(0, 1, 1, 0, 0, 0);
-        g.drawImage(img, 0, bandTop, img.naturalWidth, bandH, 0, 0, 512, 64);
-      });
-      tex.flipY = false;
-      tex.wrapS = T.MirroredRepeatWrapping;
-      tex.repeat.set(2, 1);
-      return tex;
-    }
-
     const views = [];
     function penView(i, pen) {
       const info = penInfo(i);
@@ -193,40 +240,8 @@
         v.body.material.dispose();
         if (v.body.material.map) v.body.material.map.dispose();
       }
-      const group = new T.Group();
+      const { group, body } = buildPen(T, info, null, pen.len, pen.r, { shadows: true });
       group.rotation.order = 'YZX';
-      const mat = new T.MeshStandardMaterial({
-        color: info ? '#ffffff' : '#2f6fd6',
-        roughness: 0.38,
-        metalness: 0.05,
-        emissive: '#ffffff',
-        emissiveIntensity: 0,
-      });
-      const body = new T.Mesh(bodyGeometry(pen.len, pen.r), mat);
-      body.rotation.z = -Math.PI / 2; // lathe axis (Y) along the pen (local X)
-      body.castShadow = true;
-      group.add(body);
-
-      const clip = info && info.clip;
-      if (clip) {
-        const L = pen.len * S;
-        const R = pen.r * S;
-        // A slim bar hugging the barrel; how far it stood off in the artwork only sets how chunky it is.
-        const reach = R * (0.35 + Math.min(1, clip.height) * 0.25);
-        const box = new T.Mesh(
-          new T.BoxGeometry((clip.to - clip.from) * L, R * 0.55, reach),
-          new T.MeshStandardMaterial({
-            color: clip.colour,
-            roughness: 0.3,
-            transparent: clip.opacity < 0.9,
-            opacity: Math.max(0.55, clip.opacity),
-          })
-        );
-        // The clip is on the sprite's top edge, so it runs along the pen's left side.
-        box.position.set(-L / 2 + ((clip.from + clip.to) / 2) * L, R * 0.3, -(R + reach / 2) + R * 0.15);
-        box.castShadow = true;
-        group.add(box);
-      }
       scene.add(group);
       v = views[i] = { key, len: pen.len, group, body, info, textured: !info };
       return v;
@@ -236,7 +251,7 @@
       if (!v.textured) {
         const img = loadedSprite(v.info);
         if (img) {
-          v.body.material.map = bodyTexture(img, v.info);
+          v.body.material.map = bodyTexture(T, img, v.info, renderer.capabilities.getMaxAnisotropy());
           v.body.material.needsUpdate = true;
           v.textured = true;
         } else {
@@ -410,5 +425,5 @@
     };
   }
 
-  root.PenRender3D = { create };
+  root.PenRender3D = { create, buildPen, bodyTexture, SCALE: S };
 })(window);

@@ -11,9 +11,9 @@
   const LIN_DAMP = 0.6; // speed-proportional drag, 1/s
   const ANG_FRICTION = 5; // rad/s^2
   const ANG_DAMP = 1.2; // 1/s
-  const RESTITUTION = 0.55;
+  const RESTITUTION = 0.5;
   const CONTACT_FRICTION = 0.2;
-  const MAX_IMPULSE = 1300; // px/s for a unit-mass pen at full power
+  const MAX_IMPULSE = 820; // px/s for a unit-mass pen at full power (tuned so rounds last ~7 flicks)
   const SPIN_FACTOR = 0.35; // tames spin from off-centre flicks
   const FALL_TIME = 0.6; // seconds a pen takes to drop off the desk
   const STOP_V = 5;

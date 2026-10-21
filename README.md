@@ -16,6 +16,33 @@ is undone, the fallen pen goes back where it was before the last flick and play 
 reward; if an ad won't load or stalls you can try another. The ad list is `VIDEOS` in `ads.js` and the threshold is
 `REWARD_SHARE`.
 
+**Profiles and points.** On first visit players create a profile: a name, an avatar and a unique player ID
+(like `PF-7KQ3-92XD`). Several players can share a device and switch between profiles. Playing against the computer
+earns points (x1 on Easy, x2 on Normal, x3 on Hard):
+
+| Event | Points |
+| --- | --- |
+| Round won | 10 x difficulty |
+| Match won | 50 x difficulty |
+| First win of the day | +25 |
+| Third win in a row and beyond | +25 each |
+| Match lost (once you move on) | 5 |
+
+Friend games earn nothing, so nobody can farm points against themselves. Points buy Fresh products in the
+**🎁 Rewards shop** (from 600 points for a Sprint pack to 6,000 for the mega bundle); redeeming gives a voucher
+code that is kept under My rewards. Profile logic is in `profile.js` (catalogue in `SHOP`, rates in `POINTS`) and
+the screens are in `profile-ui.js`.
+
+> **Demo only.** Profiles, points and vouchers live in the browser's local storage on one device. Anyone can edit
+> that, and the codes are not checked by any store. Before giving away real products, points must be kept and
+> vouchers issued by a server with player accounts.
+
+**360° pen view.** Tap the chosen pen in the tray again, or use "View this pen in 360°", to open the pen's 3D model
+large. Drag to spin it any way, scroll or pinch to zoom, double-click to reset (`viewer.js`).
+
+**Game length.** Flicks were strong enough that 93% of rounds ended on the first shot. Maximum flick strength and
+bounce are now tuned so a round lasts about 7 flicks on average (13% one-shot), which a test keeps in check.
+
 **Play styles and pen stats.** Choosing a pen works like picking a class in a game. First pick a play style, then
 one of that style's pen lines, then a colour. Not sure? **✨ Find my style** asks three quick questions and
 recommends a style and its signature pen.
@@ -79,6 +106,8 @@ off and you lose it, even if you took theirs with you. The first to the chosen n
 | `pen-stats.js` | Play styles, each line's speed/power/grip/spin and tagline, and the style quiz. |
 | `ai.js` | Computer opponent: simulates candidate flicks with the same physics and plays the best one, with aim error per difficulty. |
 | `game.js` | Pointer input (mouse and touch), turns, rounds, scoring, the aim overlay and the 2D fallback view. |
+| `profile.js`, `profile-ui.js` | Player profiles, points, the rewards shop and their screens. |
+| `viewer.js` | 360° pen viewer. |
 | `ads.js` | Rewarded ads: YouTube player dialog, watched-time tracking and the 30% unlock. |
 | `render3d.js` | 3D view: desk, lighting, pen models built from the sprites, falling pens, and the camera fit (portrait screens look along the desk). |
 | `vendor/three.min.js` | three.js r149 (MIT), bundled so the game needs no build step or network. |
@@ -87,6 +116,9 @@ off and you lose it, even if you took theirs with you. The first to the chosen n
 | `scripts/build_pens.py` | Cuts the brand artwork into those sprites and measures each pen's colour, barrel position and clip. |
 
 ### Regenerating the pen sprites
+
+Shop pictures come from *Ball Pen Packaging*, *DF Ball Pen Mock Up* and *Fresh Pastello*: run
+`python3 scripts/build_shop.py <folder>` with `Packet/`, `Mock-Up/` and `Fresh Pastello/` unzipped into it.
 
 The sprites come from the Fresh artwork zips (*10 Pen Brands*, *Fresh Pastello*, *Fresh InkForce*). Unzip them so one
 folder holds `PNG/`, `Fresh Pastello/` and `Mockup/1.png`–`6.png`, then run (needs Pillow):
