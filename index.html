@@ -3,22 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Pen Fight</title>
-    <meta name="description" content="Flick your pen and knock the other pen off the school desk. Play the computer or a friend on one device." />
+    <title>Pen Fight · Fresh</title>
+    <meta name="description" content="Pick your Fresh pen, flick it and knock the other pen off the desk. Play the computer or a friend on one device." />
     <meta name="theme-color" content="#2b2118" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Pen Fight · Fresh" />
+    <meta property="og:description" content="Pick your Fresh pen, flick it and knock the other pen off the desk." />
+    <meta property="og:image" content="og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Pen Fight" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header class="hud">
       <div class="score" data-player="0">
-        <span class="swatch"></span><span class="name" id="name-0">Blue</span><b id="score-0">0</b>
+        <span class="swatch"></span><span class="name" id="name-0">You</span><b id="score-0">0</b>
       </div>
       <div class="turn" id="turn" role="status" aria-live="polite">Pen Fight</div>
       <div class="score" data-player="1">
-        <b id="score-1">0</b><span class="name" id="name-1">Red</span><span class="swatch"></span>
+        <b id="score-1">0</b><span class="name" id="name-1">Computer</span><span class="swatch"></span>
       </div>
-      <button id="menu-button" class="icon-button" type="button" aria-label="Menu">☰</button>
+      <div class="hud-actions">
+        <button id="fullscreen-button" class="icon-button" type="button" aria-label="Full screen" title="Full screen">⛶</button>
+        <button id="menu-button" class="icon-button" type="button" aria-label="Menu" title="Menu">☰</button>
+      </div>
     </header>
 
     <main id="stage">
@@ -26,50 +38,61 @@
       <canvas id="desk" aria-label="School desk with two pens"></canvas>
 
       <section id="menu" class="overlay">
-        <div class="card">
-          <h1>Pen Fight</h1>
-          <p class="lede">Pick a Fresh pen. Flick it. Knock theirs off the desk and keep yours on.</p>
-          <fieldset>
-            <legend>Opponent</legend>
-            <div class="choices" id="mode-choices">
-              <button type="button" data-mode="easy">Computer · Easy</button>
-              <button type="button" data-mode="normal" class="selected">Computer · Normal</button>
-              <button type="button" data-mode="hard">Computer · Hard</button>
-              <button type="button" data-mode="friend">Friend (same device)</button>
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend>Match</legend>
-            <div class="choices" id="length-choices">
-              <button type="button" data-wins="1">1 round</button>
-              <button type="button" data-wins="3" class="selected">First to 3</button>
-              <button type="button" data-wins="5">First to 5</button>
-            </div>
-          </fieldset>
-          <fieldset class="picker" data-player="0">
-            <legend id="picker-0-label">Your pen</legend>
-            <div class="lines" role="tablist" aria-label="Pen line"></div>
-            <div class="tray"></div>
-          </fieldset>
-          <fieldset class="picker" data-player="1" hidden>
-            <legend>Player 2's pen</legend>
-            <div class="lines" role="tablist" aria-label="Pen line"></div>
-            <div class="tray"></div>
-          </fieldset>
-          <button id="start" class="primary" type="button">Play</button>
-          <ol class="howto">
-            <li>Press on your pen.</li>
-            <li>Pull back to aim. Further pulls hit harder; grab near a tip to spin.</li>
-            <li>Let go to flick. A pen whose middle leaves the desk falls off.</li>
-          </ol>
-          <label class="toggle"><input type="checkbox" id="sound" checked /> Sound</label>
+        <div class="card menu-card">
+          <div class="menu-main">
+            <p class="badge">Featuring <b>Fresh</b> pens</p>
+            <h1>Pen Fight</h1>
+            <p class="lede">Flick your pen. Knock theirs off the desk. Keep yours on.</p>
+            <fieldset>
+              <legend>Opponent</legend>
+              <div class="choices" id="mode-choices">
+                <button type="button" data-mode="easy">Computer · Easy</button>
+                <button type="button" data-mode="normal" class="selected">Computer · Normal</button>
+                <button type="button" data-mode="hard">Computer · Hard</button>
+                <button type="button" data-mode="friend">Friend (same device)</button>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Match</legend>
+              <div class="choices" id="length-choices">
+                <button type="button" data-wins="1">1 round</button>
+                <button type="button" data-wins="3" class="selected">First to 3</button>
+                <button type="button" data-wins="5">First to 5</button>
+              </div>
+            </fieldset>
+            <ol class="howto">
+              <li>Press on your pen.</li>
+              <li>Pull back to aim. Further pulls hit harder; grab near a tip to spin.</li>
+              <li>Let go to flick. A pen whose middle leaves the desk falls off.</li>
+            </ol>
+          </div>
+          <div class="menu-pens">
+            <fieldset class="picker" data-player="0">
+              <legend id="picker-0-label">Your pen</legend>
+              <div class="lines" role="tablist" aria-label="Pen line"></div>
+              <div class="tray"></div>
+            </fieldset>
+            <fieldset class="picker" data-player="1" hidden>
+              <legend>Player 2's pen</legend>
+              <div class="lines" role="tablist" aria-label="Pen line"></div>
+              <div class="tray"></div>
+            </fieldset>
+            <button id="start" class="primary" type="button">Play</button>
+            <label class="toggle"><input type="checkbox" id="sound" checked /> Sound</label>
+          </div>
         </div>
       </section>
 
       <section id="result" class="overlay" hidden>
-        <div class="card">
+        <div class="card result-card">
           <h2 id="result-title"></h2>
           <p id="result-text"></p>
+          <div id="revive" class="revive" hidden>
+            <button id="revive-button" class="revive-button" type="button">
+              <span class="play" aria-hidden="true">▶</span>
+              <span><b><span id="revive-who"></span>Watch an ad to revive</b><small>Watch 30% of a Fresh Stationery ad and your pen goes back on the desk.</small></span>
+            </button>
+          </div>
           <div class="actions">
             <button id="result-next" class="primary" type="button">Next round</button>
             <button id="result-menu" type="button">Menu</button>
@@ -78,11 +101,30 @@
       </section>
     </main>
 
+    <section id="ad" class="ad" role="dialog" aria-modal="true" aria-labelledby="ad-title" hidden>
+      <div class="ad-card">
+        <div class="ad-head">
+          <span class="ad-tag">Ad</span>
+          <span id="ad-title" class="ad-title">Fresh Stationery</span>
+        </div>
+        <div class="ad-video"><div id="ad-player"></div></div>
+        <div class="ad-meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progress to revive">
+          <span id="ad-progress"></span>
+        </div>
+        <p id="ad-label" class="ad-label">Loading ad…</p>
+        <div class="actions">
+          <button id="ad-retry" type="button" hidden>Try another ad</button>
+          <button id="ad-close" type="button">Close</button>
+        </div>
+      </div>
+    </section>
+
     <script src="vendor/three.min.js"></script>
     <script src="pens.js"></script>
     <script src="physics.js"></script>
     <script src="ai.js"></script>
     <script src="render3d.js"></script>
+    <script src="ads.js"></script>
     <script src="game.js"></script>
   </body>
 </html>

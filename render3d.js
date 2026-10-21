@@ -279,6 +279,13 @@
     const target = new T.Vector3(deskX, -0.3, deskZ);
     const view = new T.Vector3(0, 0, 1); // horizontal direction from the desk towards the camera
     let farPush = 2.8; // how far past the far edge a falling pen is thrown so the desk doesn't hide it
+    // The camera sits close on the desk during play and pulls back to show a pen hitting the floor.
+    const tightPos = new T.Vector3();
+    const widePos = new T.Vector3();
+    let zoom = 0; // 0 = tight, 1 = wide
+    let intro = 1; // 0..1 progress of the opening camera sweep
+    let lastNow = 0;
+    const calm = root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function fitCamera() {
       camera.aspect = width / height;
@@ -291,24 +298,45 @@
       view.set(dir.x, 0, dir.z).normalize();
       // Two passes: frame, then work out how much floor the desk hides on the far side, and frame again.
       for (let pass = 0; pass < 2; pass++) {
-        frame(dir);
+        frame(dir, true);
         const half = Math.abs(view.x) * (deskW / 2) + Math.abs(view.z) * (deskD / 2);
         const edgePt = new T.Vector3(deskX, 0, deskZ).addScaledVector(view, -half);
         const k = camera.position.y / (camera.position.y - FLOOR_Y);
         const hidden = Math.hypot(edgePt.x - camera.position.x, edgePt.z - camera.position.z) * (1 / k - 1);
         farPush = hidden + 0.6;
       }
-      // Fog only softens the far floor, however far back the camera had to go.
-      const d = camera.position.distanceTo(target);
+      widePos.copy(camera.position);
+      frame(dir, false);
+      tightPos.copy(camera.position);
+      // Fog only softens the far floor, however far back the camera has to go.
+      const d = widePos.distanceTo(target);
       scene.fog.near = d + 3;
       scene.fog.far = d + 22;
+      placeCamera();
     }
 
-    // Moves the camera along `dir` until the desktop and the floor where pens land fit on screen.
-    function frame(dir) {
+    const ease = (t) => t * t * (3 - 2 * t);
+    const yAxis = new T.Vector3(0, 1, 0);
+    function placeCamera() {
+      const pos = tightPos.clone().lerp(widePos, ease(zoom));
+      if (intro < 1) {
+        // Swing in from higher, further and round to one side.
+        const k = 1 - ease(intro);
+        const off = pos.clone().sub(target).applyAxisAngle(yAxis, k * 0.8).multiplyScalar(1 + k * 0.7);
+        off.y += k * 3;
+        pos.copy(target).add(off);
+      }
+      camera.position.copy(pos);
+      camera.lookAt(target);
+      camera.updateMatrixWorld();
+    }
+
+    // Moves the camera along `dir` until the desktop (and, if `wide`, the floor where pens land) fits on screen.
+    function frame(dir, wide) {
       const corners = [];
       for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-        corners.push(new T.Vector3(deskX + sx * (deskW / 2 + 0.25), 0, deskZ + sz * (deskD / 2 + 0.25)));
+        corners.push(new T.Vector3(deskX + sx * (deskW / 2 + 0.12), 0, deskZ + sz * (deskD / 2 + 0.12)));
+        if (!wide) continue;
         const mx = sx * view.x < -0.3 ? farPush + 0.3 : 1.5;
         const mz = sz * view.z < -0.3 ? farPush + 0.3 : 1.5;
         corners.push(new T.Vector3(deskX + sx * (deskW / 2 + mx), FLOOR_Y, deskZ + sz * (deskD / 2 + mz)));
@@ -323,7 +351,7 @@
         camera.updateMatrixWorld();
         const fits = corners.every((c) => {
           const p = c.clone().project(camera);
-          return Math.abs(p.x) < 0.96 && Math.abs(p.y) < 0.94 && p.z < 1;
+          return Math.abs(p.x) < 0.97 && Math.abs(p.y) < (wide ? 0.94 : 0.96) && p.z < 1;
         });
         if (fits) hi = d;
         else lo = d;
@@ -361,7 +389,18 @@
         return { x: ((p.x + 1) / 2) * width, y: ((1 - p.y) / 2) * height };
       },
 
+      // Opening camera sweep, e.g. at the start of a match.
+      intro() {
+        if (!calm) intro = 0;
+      },
+
       render(pens, glowOwner, now) {
+        const dt = Math.min(0.1, Math.max(0, (now - lastNow) / 1000));
+        lastNow = now;
+        const goal = pens.some((p) => p.out) ? 1 : 0;
+        zoom += (goal - zoom) * (calm ? 1 : 1 - Math.exp(-dt * 3.2));
+        if (intro < 1) intro = Math.min(1, intro + dt / 1.8);
+        placeCamera();
         pens.forEach((pen, i) => {
           const glow = i === glowOwner ? 0.12 + 0.12 * Math.sin(now / 160) : 0;
           update(penView(i, pen), pen, Math.max(0, glow));

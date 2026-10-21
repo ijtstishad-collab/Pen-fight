@@ -1,0 +1,11 @@
+{
+  "name": "Pen Fight · Fresh",
+  "short_name": "Pen Fight",
+  "description": "Pick your Fresh pen, flick it and knock the other pen off the desk.",
+  "start_url": ".",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#2b2118",
+  "theme_color": "#2b2118",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

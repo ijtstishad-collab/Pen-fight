@@ -27,6 +27,9 @@
     resultTitle: el('result-title'),
     resultText: el('result-text'),
     resultNext: el('result-next'),
+    revive: el('revive'),
+    reviveButton: el('revive-button'),
+    reviveWho: el('revive-who'),
     sound: el('sound'),
   };
 
@@ -237,6 +240,7 @@
     ui.name[0].textContent = playerName(0);
     ui.name[1].textContent = playerName(1);
     ui.menu.hidden = true;
+    if (r3d) r3d.intro();
     startRound();
   }
 
@@ -249,6 +253,7 @@
     ];
     game.current = game.starter;
     game.round++;
+    game.revived = false;
     ui.result.hidden = true;
     updateScores();
     beginTurn();
@@ -282,6 +287,7 @@
   }
 
   function shoot(pen, s, dx, dy, power) {
+    game.beforeShot = P.clonePens(game.pens); // what a revive puts back
     P.flick(pen, s, dx, dy, power);
     game.shooter = pen.owner;
     game.state = 'moving';
@@ -308,26 +314,80 @@
       beginTurn();
       return;
     }
+    endRound(winner, reason);
+  }
+
+  function endRound(winner, reason) {
     game.scores[winner]++;
     updateScores();
+    game.lastRound = { winner, starter: game.starter };
     game.starter = 1 - game.starter;
+    const loser = 1 - winner;
     const matchOver = game.scores[winner] >= game.winsNeeded;
     game.state = 'over';
     const wonByYou = game.mode !== 'friend' && winner === 0;
-    const lostByYou = game.mode !== 'friend' && winner === 1;
     let title;
     if (matchOver) title = game.mode === 'friend' ? `${playerName(winner)} wins the match!` : wonByYou ? 'You win the match!' : 'The computer wins the match';
-    else title = game.mode === 'friend' ? `${playerName(winner)} takes the round` : wonByYou ? 'Round to you' : lostByYou ? 'Round to the computer' : '';
+    else title = game.mode === 'friend' ? `${playerName(winner)} takes the round` : wonByYou ? 'Round to you' : 'Round to the computer';
     ui.resultTitle.textContent = title;
     ui.resultText.textContent = `${reason} Score ${game.scores[0]}–${game.scores[1]}.`;
     ui.resultNext.textContent = matchOver ? 'Rematch' : 'Next round';
     ui.resultNext.onclick = matchOver ? startMatch : startRound;
+    // A human who just lost their pen can watch an ad to put it back, once per round.
+    const canRevive = window.PenAds && isHuman(loser) && game.pens[loser].out && !game.revived;
+    ui.revive.hidden = !canRevive;
+    ui.reviveWho.textContent = game.mode === 'friend' ? `${playerName(loser)}: ` : '';
+    ui.result.classList.toggle('win', wonByYou || (game.mode === 'friend' && matchOver));
     setTurn(matchOver ? 'Match over' : 'Round over');
     blip(matchOver ? 660 : 520, 0.12, 0.25);
+    if (wonByYou || (game.mode === 'friend' && matchOver)) confetti(matchOver ? 160 : 70);
     setTimeout(() => {
+      if (game.state !== 'over') return;
       ui.result.hidden = false;
-      ui.resultNext.focus();
-    }, 500);
+      (canRevive ? ui.reviveButton : ui.resultNext).focus();
+    }, 700);
+  }
+
+  function watchToRevive() {
+    const { winner } = game.lastRound;
+    ui.result.hidden = true;
+    window.PenAds.watch().then((earned) => {
+      if (earned) revive(1 - winner);
+      else ui.result.hidden = false;
+    });
+  }
+
+  // Undo the round result and put the fallen pen(s) back where they were before the last flick.
+  function revive(player) {
+    const { winner, starter } = game.lastRound;
+    game.scores[winner]--;
+    game.starter = starter;
+    game.revived = true;
+    updateScores();
+    for (const pen of game.pens) {
+      if (!pen.out) continue;
+      const was = game.beforeShot[pen.owner];
+      Object.assign(pen, { x: was.x, y: was.y, a: was.a, vx: 0, vy: 0, w: 0, out: false, fall: 0 });
+    }
+    // Slide the revived pen towards the middle until it is clear of the other pen.
+    const pen = game.pens[player];
+    const other = game.pens[1 - player];
+    const cx = DESK.x + DESK.w / 2;
+    const cy = DESK.y + DESK.h / 2;
+    for (let i = 0; i < 80 && touching(pen, other); i++) {
+      const dx = cx - pen.x, dy = cy - pen.y, n = Math.hypot(dx, dy) || 1;
+      pen.x += (dx / n) * 8 + (pen.x < other.x ? -6 : 6);
+      pen.y += (dy / n) * 8;
+    }
+    blip(880, 0.12, 0.3);
+    game.current = 1 - game.shooter;
+    beginTurn();
+  }
+
+  function touching(a, b) {
+    const ea = P.endpoints(a), eb = P.endpoints(b);
+    const cp = P.closestSegments(ea[0], ea[1], ea[2], ea[3], eb[0], eb[1], eb[2], eb[3]);
+    return Math.hypot(cp.bx - cp.ax, cp.by - cp.ay) < a.r + b.r + 6;
   }
 
   function setTurn(text) {
@@ -403,8 +463,18 @@
   canvas.addEventListener('pointercancel', (evt) => release(evt, true));
 
   el('menu-button').addEventListener('click', openMenu);
+  const fsButton = el('fullscreen-button');
+  if (document.fullscreenEnabled) {
+    fsButton.addEventListener('click', () => {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen().catch(() => {});
+    });
+  } else {
+    fsButton.hidden = true;
+  }
   el('result-menu').addEventListener('click', openMenu);
   el('start').addEventListener('click', startMatch);
+  el('revive-button').addEventListener('click', watchToRevive);
 
   function choose(groupId, attr, apply) {
     const group = el(groupId);
@@ -652,7 +722,51 @@
     ctx.fill();
   }
 
-  function render(now) {
+  // ---------- confetti ----------
+
+  const bits = [];
+  function confetti(n) {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    const colours = [penInfo(0), penInfo(1)].filter(Boolean).map((i) => i.colour).concat(['#f0b429', '#ffffff', '#e8413a']);
+    for (let i = 0; i < n; i++) {
+      bits.push({
+        x: Math.random() * w,
+        y: -20 - Math.random() * h * 0.6,
+        vx: (Math.random() - 0.5) * 90,
+        vy: 60 + Math.random() * 140,
+        a: Math.random() * 6,
+        spin: (Math.random() - 0.5) * 12,
+        c: colours[i % colours.length],
+        size: 6 + Math.random() * 6,
+      });
+    }
+  }
+
+  function drawConfetti(dt) {
+    const h = canvas.clientHeight;
+    for (let i = bits.length - 1; i >= 0; i--) {
+      const b = bits[i];
+      b.vy = Math.min(b.vy + 260 * dt, 260);
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      b.a += b.spin * dt;
+      if (b.y > h + 30) {
+        bits.splice(i, 1);
+        continue;
+      }
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.a);
+      ctx.scale(1, Math.cos(b.a * 1.7)); // flutter
+      ctx.fillStyle = b.c;
+      ctx.fillRect(-b.size / 2, -b.size / 4, b.size, b.size / 2);
+      ctx.restore();
+    }
+  }
+
+  function render(now, dt) {
     const glowOwner = game.state === 'aim' && !game.drag ? game.current : -1;
     if (r3d) {
       r3d.render(game.pens, glowOwner, now);
@@ -678,6 +792,7 @@
       const t = Math.min(1, (now - start) / dur);
       drawAim(game.pens[game.current], shot.s, null, shot.power * t, shot.dx, shot.dy);
     }
+    if (bits.length) drawConfetti(dt);
   }
 
   // ---------- loop ----------
@@ -703,7 +818,7 @@
     } else {
       acc = 0;
     }
-    render(now);
+    render(now, dt);
     requestAnimationFrame(frame);
   }
 
