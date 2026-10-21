@@ -21,9 +21,35 @@
     <meta name="apple-mobile-web-app-title" content="Pen Fight" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Permanent+Marker&display=swap" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <section id="promo" class="promo" role="dialog" aria-modal="true" aria-labelledby="promo-title">
+      <div class="promo-stage">
+        <picture>
+          <source media="(orientation: portrait)" srcset="assets/promo/arena-tall.webp" />
+          <img class="promo-bg" src="assets/promo/arena-wide.webp" alt="" />
+        </picture>
+        <img class="promo-logo" src="assets/brand/fresh-stationery.webp" alt="Fresh Stationery" />
+        <h1 id="promo-title" class="promo-title">Pen Fight</h1>
+        <div class="promo-fighter left">
+          <img class="promo-head" src="assets/promo/head-sprint.webp" alt="" />
+          <img class="promo-pen" src="assets/promo/pen-sprint.webp" alt="Fresh Sprint pen" />
+        </div>
+        <div class="promo-fighter right">
+          <img class="promo-head" src="assets/promo/head-inkforce.webp" alt="" />
+          <img class="promo-pen" src="assets/promo/pen-inkforce.webp" alt="Fresh InkForce pen" />
+        </div>
+        <img class="promo-arms" src="assets/promo/arms.webp" alt="" />
+        <p class="promo-bubble left">I'm <b>Fresh Sprint</b>.<br />Fastest pen on the desk.<br />Catch me if you can!</p>
+        <p class="promo-bubble right">I'm <b>Fresh InkForce</b>.<br />Built like a tank.<br />Your flick won't move me!</p>
+        <button id="promo-play" class="promo-play" type="button">Tap to fight!</button>
+        <p class="promo-tag">Pick your Fresh pen · Flick · Knock them off the desk</p>
+      </div>
+    </section>
     <header class="hud">
       <a class="brand-logo" href="https://www.youtube.com/@freshstationery1296" target="_blank" rel="noopener" title="Fresh Stationery">
         <img src="assets/brand/fresh-stationery.webp" alt="Fresh Stationery" width="420" height="249" />
@@ -197,5 +223,6 @@
     <script src="profile-ui.js"></script>
     <script src="viewer.js"></script>
     <script src="game.js"></script>
+    <script src="promo.js"></script>
   </body>
 </html>

@@ -90,6 +90,12 @@ Pick your pen from 72 real **Fresh** ball pens in 12 lines: Icon, Icon Signature
 Emoji, Shine, Sailor, Classroom, Campus, Good Day and Sprint. Against the computer, it plays a random pen from
 another line. Your choice is remembered in the browser.
 
+**Start banner.** The game opens on a doodled "PEN FIGHT" banner: a sticky note with a ballpoint-sketched boxing ring,
+the real Fresh Sprint and InkForce pens wearing ink-drawn heads, and handwritten trash talk. Tap anywhere (or press
+Enter) to start; add `?nopromo` to the URL to skip it. The sketch art (`assets/promo/`: sticky-note arena, heads,
+gloves) was generated with Higgsfield; the pens are the real product images and all text is live HTML so it stays
+sharp and exact. `og.png`, the link preview, is a capture of this banner.
+
 The top-left logo is the Fresh Stationery logo from the brand's YouTube channel
 (`assets/brand/fresh-stationery.webp`); it links to the channel.
 
@@ -129,6 +135,7 @@ off and you lose it, even if you took theirs with you. The first to the chosen n
 | `game.js` | Pointer input (mouse and touch), turns, rounds, scoring, the aim overlay and the 2D fallback view. |
 | `profile.js`, `profile-ui.js` | Player profiles, points, the rewards shop and their screens. |
 | `viewer.js` | 360° pen viewer. |
+| `promo.js` | Start banner. |
 | `ads.js` | Rewarded ads: YouTube player dialog, watched-time tracking and the 30% unlock. |
 | `render3d.js` | 3D view: desk, lighting, pen models built from the sprites, falling pens, and the camera fit (portrait screens look along the desk). |
 | `vendor/three.min.js` | three.js r149 (MIT), bundled so the game needs no build step or network. |

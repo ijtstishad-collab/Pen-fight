@@ -1986,3 +1986,325 @@ legend {
   background: linear-gradient(135deg, #ffcf3a, #f59a1b);
   box-shadow: 0 4px 14px rgba(245, 154, 27, 0.35);
 }
+
+/* ---------- start banner ---------- */
+
+.promo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at 50% 40%, #fffdf6, #e7e1d3);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.promo.leaving {
+  animation: promo-out 0.45s ease-in forwards;
+}
+
+@keyframes promo-out {
+  to {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}
+
+.promo-stage {
+  position: relative;
+  container-type: inline-size;
+  width: min(100vw, calc(100dvh * 16 / 9));
+  aspect-ratio: 16 / 9;
+}
+
+.promo-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.promo-logo {
+  position: absolute;
+  left: 4%;
+  top: 7%;
+  width: 13%;
+  padding: 0.6cqw 1cqw;
+  border-radius: 1cqw;
+  background: #fff;
+  box-shadow: 0 0.4cqw 1.2cqw rgba(0, 0, 0, 0.15);
+  transform: rotate(-4deg);
+}
+
+.promo-title {
+  position: absolute;
+  left: 50%;
+  top: 5%;
+  margin: 0;
+  padding: 0.4cqw 4cqw;
+  background: #2340b8;
+  color: #fff;
+  font: 400 6.2cqw/1.15 'Permanent Marker', 'Marker Felt', 'Comic Sans MS', cursive;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translateX(-50%) rotate(-2deg);
+  box-shadow: 0 0.5cqw 1.4cqw rgba(35, 64, 184, 0.35);
+  animation: title-in 0.6s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+@keyframes title-in {
+  from {
+    transform: translateX(-50%) rotate(-12deg) scale(0.4);
+    opacity: 0;
+  }
+}
+
+.promo-fighter {
+  position: absolute;
+  bottom: 13%;
+  height: 66%;
+  width: 14%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.promo-fighter.left {
+  left: 30%;
+  transform-origin: 50% 100%;
+  animation: fighter-left 0.7s 0.15s cubic-bezier(0.2, 1.3, 0.4, 1) both, sway-left 2.2s 0.9s ease-in-out infinite;
+}
+
+.promo-fighter.right {
+  right: 30%;
+  transform-origin: 50% 100%;
+  animation: fighter-right 0.7s 0.25s cubic-bezier(0.2, 1.3, 0.4, 1) both, sway-right 2.2s 0.9s ease-in-out infinite;
+}
+
+.promo-head {
+  width: 100%;
+  height: auto;
+  margin-bottom: -1.2cqw; /* the neck tucks onto the pen cap */
+  position: relative;
+  z-index: 1;
+}
+
+.promo-pen {
+  flex: 1;
+  min-height: 0;
+  width: auto;
+  filter: drop-shadow(0.6cqw 0.8cqw 0.6cqw rgba(0, 0, 0, 0.25));
+}
+
+@keyframes fighter-left {
+  from {
+    transform: translateX(-40cqw) rotate(-30deg);
+  }
+}
+
+@keyframes fighter-right {
+  from {
+    transform: translateX(40cqw) rotate(30deg);
+  }
+}
+
+@keyframes sway-left {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes sway-right {
+  0%, 100% { transform: rotate(6deg); }
+  50% { transform: rotate(-2deg); }
+}
+
+.promo-arms {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 22%;
+  transform: translateX(-50%);
+  animation: punch 0.5s 1s ease-in-out infinite alternate;
+}
+
+@keyframes punch {
+  from { transform: translateX(-50%) scaleX(0.82); }
+  to { transform: translateX(-50%) scaleX(1.05); }
+}
+
+.promo-bubble {
+  position: absolute;
+  top: 24%;
+  width: 22%;
+  margin: 0;
+  padding: 1.4cqw 1.6cqw;
+  border: 0.3cqw solid #2340b8;
+  border-radius: 48% 52% 46% 54% / 55% 48% 52% 45%;
+  background: #fff;
+  color: #2340b8;
+  font: 700 2.1cqw/1.15 'Caveat', 'Comic Sans MS', cursive;
+  text-align: center;
+  box-shadow: 0.4cqw 0.6cqw 0 rgba(35, 64, 184, 0.12);
+  animation: bubble-in 0.45s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+.promo-bubble b {
+  color: #d1252b;
+}
+
+.promo-bubble.left {
+  left: 6%;
+  animation-delay: 0.9s;
+}
+
+.promo-bubble.right {
+  right: 6%;
+  top: 34%;
+  animation-delay: 1.5s;
+}
+
+/* Tails pointing at the speaker's head. */
+.promo-bubble::after {
+  content: '';
+  position: absolute;
+  top: 40%;
+  width: 3cqw;
+  height: 2.2cqw;
+  background: #fff;
+  border: 0.3cqw solid #2340b8;
+  border-left: 0;
+  border-bottom: 0;
+}
+
+.promo-bubble.left::after {
+  right: -1.6cqw;
+  transform: skewY(25deg) rotate(10deg);
+}
+
+.promo-bubble.right::after {
+  left: -1.6cqw;
+  transform: scaleX(-1) skewY(25deg) rotate(10deg);
+}
+
+@keyframes bubble-in {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+}
+
+.promo-play {
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  padding: 1cqw 3.2cqw;
+  border: 0.35cqw solid #2340b8;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffcf3a, #f59a1b);
+  color: #2340b8;
+  font: 400 2.6cqw/1.1 'Permanent Marker', 'Marker Felt', cursive;
+  white-space: nowrap;
+  box-shadow: 0 0.6cqw 0 #2340b8;
+  transform: translateX(-50%);
+  animation: play-pulse 1.4s 2s ease-in-out infinite;
+}
+
+@keyframes play-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.07); }
+}
+
+.promo-tag {
+  position: absolute;
+  right: 4%;
+  bottom: 2%;
+  margin: 0;
+  color: #2340b8;
+  font: 700 1.6cqw/1.2 'Caveat', cursive;
+  transform: rotate(-2deg);
+}
+
+/* Phones held upright: tall sticky note, bubbles stacked above the fighters. */
+@media (orientation: portrait) {
+  .promo-stage {
+    width: min(100vw, calc(100dvh * 9 / 16));
+    aspect-ratio: 9 / 16;
+  }
+  .promo-logo {
+    left: 5%;
+    top: 4%;
+    width: 26%;
+    padding: 1cqw 2cqw;
+  }
+  .promo-title {
+    top: 12%;
+    font-size: 13cqw;
+    padding: 0.5cqw 7cqw;
+  }
+  .promo-fighter {
+    bottom: 10%;
+    height: 50%;
+    width: 30%;
+  }
+  .promo-fighter.left {
+    left: 14%;
+  }
+  .promo-fighter.right {
+    right: 14%;
+  }
+  .promo-arms {
+    top: 58%;
+    width: 46%;
+  }
+  .promo-bubble {
+    width: 52%;
+    font-size: 4.6cqw;
+    padding: 2.4cqw 3cqw;
+    border-width: 0.6cqw;
+  }
+  .promo-bubble.left {
+    left: 4%;
+    top: 23%;
+  }
+  .promo-bubble.right {
+    right: 4%;
+    top: 33%;
+  }
+  .promo-bubble::after {
+    top: auto;
+    bottom: -2.4cqw;
+    width: 4cqw;
+    height: 4cqw;
+    border-width: 0.6cqw;
+  }
+  .promo-bubble.left::after {
+    right: auto;
+    left: 30%;
+    transform: rotate(135deg);
+  }
+  .promo-bubble.right::after {
+    left: auto;
+    right: 30%;
+    transform: rotate(135deg);
+  }
+  .promo-play {
+    bottom: 3.5%;
+    font-size: 6cqw;
+    padding: 2cqw 7cqw;
+    border-width: 0.7cqw;
+    box-shadow: 0 1.2cqw 0 #2340b8;
+  }
+  .promo-tag {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo *,
+  .promo.leaving {
+    animation: none !important;
+  }
+}
