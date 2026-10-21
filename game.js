@@ -10,7 +10,8 @@
     { body: '#2f6fd6', dark: '#1d4a94', light: '#7fa9ee', name: 'Blue' },
     { body: '#d8413a', dark: '#93241f', light: '#f08c86', name: 'Red' },
   ];
-  const GRAB_SLOP = 24; // extra world px around a pen that still counts as touching it
+  const LINES = window.PEN_LINES || [];
+  const GRAB_SLOP = 26; // extra world px around a pen that still counts as touching it
   const FULL_PULL = 230; // pull distance (world px) for full power
   const MIN_PULL = 10;
 
@@ -42,7 +43,117 @@
     aiAim: null,
     movingTime: 0,
     round: 0,
+    picks: [loadPick(0, { line: 0, pen: 0 }), loadPick(1, { line: 2, pen: 5 })],
   };
+
+  // ---------- pen choice ----------
+
+  const sprites = new Map();
+  function sprite(info) {
+    if (!sprites.has(info.src)) {
+      const img = new Image();
+      img.src = info.src;
+      sprites.set(info.src, img);
+    }
+    const img = sprites.get(info.src);
+    return img.complete && img.naturalWidth ? img : null;
+  }
+
+  function penInfo(player) {
+    const pick = game.picks[player];
+    const line = LINES[pick.line];
+    return line ? Object.assign({ lineName: line.name }, line.pens[pick.pen]) : null;
+  }
+
+  function loadPick(player, fallback) {
+    try {
+      const v = JSON.parse(localStorage.getItem(`penfight.pick.${player}`));
+      if (v && LINES[v.line] && LINES[v.line].pens[v.pen]) return v;
+    } catch (e) {
+      /* storage is optional */
+    }
+    return fallback;
+  }
+
+  function savePick(player) {
+    try {
+      localStorage.setItem(`penfight.pick.${player}`, JSON.stringify(game.picks[player]));
+    } catch (e) {
+      /* storage is optional */
+    }
+  }
+
+  function computerPick() {
+    // A pen from a different line, so the two never look alike.
+    const others = LINES.map((_, i) => i).filter((i) => i !== game.picks[0].line);
+    const line = others[Math.floor(Math.random() * others.length)] || 0;
+    return { line, pen: Math.floor(Math.random() * LINES[line].pens.length) };
+  }
+
+  function applyPenColours() {
+    for (const i of [0, 1]) {
+      const info = penInfo(i);
+      if (!info) continue;
+      sprite(info); // start loading it before the round begins
+      document.documentElement.style.setProperty(`--p${i}`, info.colour);
+    }
+  }
+
+  function renderPicker(player) {
+    const box = document.querySelector(`.picker[data-player="${player}"]`);
+    const tabs = box.querySelector('.lines');
+    const tray = box.querySelector('.tray');
+    const pick = game.picks[player];
+    tabs.replaceChildren(
+      ...LINES.map((line, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.role = 'tab';
+        b.textContent = line.name;
+        b.setAttribute('aria-selected', String(i === pick.line));
+        b.onclick = () => {
+          game.picks[player] = { line: i, pen: Math.min(pick.pen, line.pens.length - 1) };
+          savePick(player);
+          renderPicker(player);
+        };
+        return b;
+      })
+    );
+    tray.replaceChildren(
+      ...LINES[pick.line].pens.map((pen, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('aria-pressed', String(i === pick.pen));
+        b.setAttribute('aria-label', `${LINES[pick.line].name} pen ${i + 1}`);
+        const img = document.createElement('img');
+        img.src = pen.src;
+        img.alt = '';
+        b.append(img);
+        b.onclick = () => {
+          game.picks[player] = { line: pick.line, pen: i };
+          savePick(player);
+          renderPicker(player);
+        };
+        return b;
+      })
+    );
+    const sel = tabs.querySelector('[aria-selected="true"]');
+    if (sel) sel.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+
+  function renderPickers() {
+    if (!LINES.length) {
+      for (const p of document.querySelectorAll('.picker')) p.hidden = true;
+      return;
+    }
+    const friend = game.mode === 'friend';
+    document.querySelector('.picker[data-player="1"]').hidden = !friend;
+    el('picker-0-label').textContent = friend ? "Player 1's pen" : 'Your pen';
+    renderPicker(0);
+    if (friend) renderPicker(1);
+    ui.name[0].textContent = playerName(0);
+    ui.name[1].textContent = playerName(1);
+  }
 
   let view = new DOMMatrix();
   let viewInv = new DOMMatrix();
@@ -100,7 +211,7 @@
   // ---------- flow ----------
 
   function playerName(i) {
-    if (game.mode === 'friend') return COLORS[i].name;
+    if (game.mode === 'friend') return LINES.length ? `Player ${i + 1}` : COLORS[i].name;
     return i === 0 ? 'You' : 'Computer';
   }
 
@@ -112,6 +223,8 @@
     game.scores = [0, 0];
     game.round = 0;
     game.starter = 0;
+    if (LINES.length && game.mode !== 'friend') game.picks[1] = computerPick();
+    applyPenColours();
     ui.name[0].textContent = playerName(0);
     ui.name[1].textContent = playerName(1);
     ui.menu.hidden = true;
@@ -293,7 +406,11 @@
       apply(btn.dataset[attr]);
     });
   }
-  choose('mode-choices', 'mode', (v) => (game.mode = v));
+  choose('mode-choices', 'mode', (v) => {
+    game.mode = v;
+    if (v === 'friend') game.picks[1] = loadPick(1, game.picks[1]);
+    renderPickers();
+  });
   choose('length-choices', 'wins', (v) => (game.winsNeeded = Number(v)));
 
   window.addEventListener('keydown', (evt) => {
@@ -406,6 +523,27 @@
     ctx.translate(pen.x, pen.y);
     ctx.rotate(pen.a);
     ctx.scale(scale, scale);
+
+    const info = penInfo(pen.owner);
+    const img = info && sprite(info);
+    if (img) {
+      if (highlight) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+        ctx.lineWidth = 3;
+        roundRect(-half - 6, -r - 6, pen.len + 12, r * 2 + 12, r + 6);
+        ctx.stroke();
+      }
+      // Keep the barrel on the physics axis; the clip sticks out to one side.
+      const h = pen.len * info.aspect;
+      const k = canvas.width / Math.max(1, canvas.clientWidth);
+      ctx.shadowColor = 'rgba(0,0,0,0.35)';
+      ctx.shadowBlur = 5 * k;
+      ctx.shadowOffsetX = 2 * k;
+      ctx.shadowOffsetY = 4 * k;
+      ctx.drawImage(img, -half, -info.axis * h, pen.len, h);
+      ctx.restore();
+      return;
+    }
 
     // Shadow.
     ctx.save();
@@ -557,6 +695,8 @@
 
   window.addEventListener('resize', resize);
   resize();
+  renderPickers();
+  applyPenColours();
   game.pens = [
     P.makePen(DESK.x + DESK.w * 0.3, DESK.y + DESK.h / 2, Math.PI / 2 - 0.2, 0),
     P.makePen(DESK.x + DESK.w * 0.7, DESK.y + DESK.h / 2, Math.PI / 2 + 0.2, 1),

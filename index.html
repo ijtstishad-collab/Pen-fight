@@ -27,7 +27,7 @@
       <section id="menu" class="overlay">
         <div class="card">
           <h1>Pen Fight</h1>
-          <p class="lede">Flick your pen. Knock theirs off the desk. Keep yours on.</p>
+          <p class="lede">Pick a Fresh pen. Flick it. Knock theirs off the desk and keep yours on.</p>
           <fieldset>
             <legend>Opponent</legend>
             <div class="choices" id="mode-choices">
@@ -44,6 +44,16 @@
               <button type="button" data-wins="3" class="selected">First to 3</button>
               <button type="button" data-wins="5">First to 5</button>
             </div>
+          </fieldset>
+          <fieldset class="picker" data-player="0">
+            <legend id="picker-0-label">Your pen</legend>
+            <div class="lines" role="tablist" aria-label="Pen line"></div>
+            <div class="tray"></div>
+          </fieldset>
+          <fieldset class="picker" data-player="1" hidden>
+            <legend>Player 2's pen</legend>
+            <div class="lines" role="tablist" aria-label="Pen line"></div>
+            <div class="tray"></div>
           </fieldset>
           <button id="start" class="primary" type="button">Play</button>
           <ol class="howto">
@@ -67,6 +77,7 @@
       </section>
     </main>
 
+    <script src="pens.js"></script>
     <script src="physics.js"></script>
     <script src="ai.js"></script>
     <script src="game.js"></script>

@@ -5,7 +5,7 @@
 
   const WORLD = { w: 1000, h: 640 };
   const DESK = { x: 70, y: 60, w: 860, h: 520 };
-  const PEN = { length: 190, radius: 9, mass: 1 };
+  const PEN = { length: 240, radius: 7, mass: 1 };
 
   const FRICTION = 260; // constant sliding deceleration, px/s^2
   const LIN_DAMP = 0.6; // speed-proportional drag, 1/s
