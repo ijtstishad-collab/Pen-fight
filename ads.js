@@ -7,13 +7,20 @@
   const LOAD_TIMEOUT = 12000;
 
   // Fresh Stationery TV commercials from https://www.youtube.com/@freshstationery1296
+  // (The 7-second clip is left out: 30% of it would be two seconds.)
   const VIDEOS = [
     { id: 'MXa66YpbQ64', title: 'Fresh Pen · Bari Vaag' },
     { id: 'YwDHHZUc3yo', title: 'Fresh Exercise Book' },
     { id: 'uuOMfTMYYMc', title: 'Fresh Sewing Exercise Book' },
     { id: 'tdyPLm9tDLE', title: 'Back to School' },
     { id: 'AGzMZj5ZbUA', title: "Teacher's Day 2024" },
+    { id: 'pdvcjptdl60', title: "Teacher's Day · D for Discipline" },
+    { id: 'bm2xzV7vScU', title: "Teachers' Day · A Tribute" },
+    { id: 'O9Z3b3DOx-4', title: "Teachers' Day · Accept the Challenge" },
+    { id: 'QbDRMkP2-V4', title: 'Fresh Stationery' },
   ];
+  const QUEUE_KEY = 'penfight.adQueue';
+  const MAX_SKIPS = 4; // ads tried in a row before giving up when they will not play
 
   let apiPromise = null;
   function loadApi() {
@@ -36,12 +43,52 @@
     return apiPromise;
   }
 
-  let lastIndex = -1;
+  // Ads play in a shuffled rotation that is remembered between visits, so every ad comes
+  // up before any repeats, and the same one never plays twice in a row.
+  const broken = new Set(); // ads that would not play in this visit
+  let memoryQueue = null;
+  let lastId = null;
+
+  function shuffle(list) {
+    const a = list.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function readQueue() {
+    try {
+      const q = JSON.parse(root.localStorage.getItem(QUEUE_KEY));
+      if (Array.isArray(q)) return q;
+    } catch (e) {
+      /* storage blocked */
+    }
+    return memoryQueue || [];
+  }
+
+  function writeQueue(q) {
+    memoryQueue = q;
+    try {
+      root.localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
+    } catch (e) {
+      /* storage blocked: the in-memory queue still rotates */
+    }
+  }
+
   function pickVideo() {
-    let i = Math.floor(Math.random() * VIDEOS.length);
-    if (i === lastIndex) i = (i + 1) % VIDEOS.length;
-    lastIndex = i;
-    return VIDEOS[i];
+    const known = new Set(VIDEOS.map((v) => v.id));
+    let queue = readQueue().filter((id) => known.has(id) && !broken.has(id));
+    if (!queue.length) {
+      queue = shuffle(VIDEOS.map((v) => v.id).filter((id) => !broken.has(id)));
+      if (queue.length > 1 && queue[0] === lastId) queue.push(queue.shift());
+    }
+    if (!queue.length) return null;
+    const id = queue.shift();
+    writeQueue(queue);
+    lastId = id;
+    return VIDEOS.find((v) => v.id === id);
   }
 
   // Shows the ad dialog. Resolves true if the viewer earned the reward, false if they left early.
@@ -119,6 +166,26 @@
         retry.hidden = false;
       }
 
+      // An ad that refuses to play (blocked from embedding, removed, region-locked) is skipped
+      // automatically, a few times, before asking the viewer.
+      let skips = 0;
+      let current = null;
+      function skipBroken() {
+        if (current) broken.add(current.id);
+        if (skips < MAX_SKIPS && !earned) {
+          skips++;
+          label.textContent = 'Finding another ad…';
+          setTimeout(() => {
+            clearInterval(timer);
+            if (player && player.destroy) player.destroy();
+            player = null;
+            start();
+          }, 400);
+        } else {
+          fail('This ad could not be played.');
+        }
+      }
+
       function start() {
         retry.hidden = true;
         progressAt = 0;
@@ -126,6 +193,11 @@
         lastTime = null;
         setProgress(0);
         const video = pickVideo();
+        if (!video) {
+          fail('No ads can be played right now.');
+          return;
+        }
+        current = video;
         title.textContent = video.title;
         label.textContent = 'Loading ad…';
         const holder = document.createElement('div');
@@ -147,7 +219,7 @@
                 onStateChange: (e) => {
                   if (e.data === YT.PlayerState.ENDED && earned) finish(true);
                 },
-                onError: () => fail('This ad could not be played.'),
+                onError: skipBroken,
               },
             });
             lastTick = performance.now();
@@ -193,5 +265,5 @@
     });
   }
 
-  root.PenAds = { watch, REWARD_SHARE, VIDEOS };
+  root.PenAds = { watch, pickVideo, REWARD_SHARE, VIDEOS };
 })(window);

@@ -347,6 +347,8 @@
       widePos.copy(camera.position);
       frame(dir, false);
       tightPos.copy(camera.position);
+      camDir.copy(dir);
+      tightDist = tightPos.distanceTo(target);
       // Fog only softens the far floor, however far back the camera has to go.
       const d = widePos.distanceTo(target);
       scene.fog.near = d + 3;
@@ -354,10 +356,49 @@
       placeCamera();
     }
 
+    // Follow: when a pen hangs over the desk edge, back the camera off until all of it
+    // (plus room for a finger to grab it) is on screen.
+    const camDir = new T.Vector3(0, 1, 0);
+    let tightDist = 0;
+    let followDist = 0;
+    const GRAB_ROOM = 0.35; // scene units beyond each pen end
+
+    function distanceToFit(points) {
+      let lo = 2;
+      let hi = 80;
+      for (let k = 0; k < 22; k++) {
+        const d = (lo + hi) / 2;
+        camera.position.copy(target).addScaledVector(camDir, d);
+        camera.lookAt(target);
+        camera.updateMatrixWorld();
+        const fits = points.every((c) => {
+          const p = c.clone().project(camera);
+          return Math.abs(p.x) < 0.95 && Math.abs(p.y) < 0.93 && p.z < 1;
+        });
+        if (fits) hi = d;
+        else lo = d;
+      }
+      return hi;
+    }
+
+    function penPoints(pens) {
+      const pts = [];
+      for (const pen of pens) {
+        if (pen.out) continue;
+        const ux = Math.cos(pen.a);
+        const uz = Math.sin(pen.a);
+        const half = (pen.len / 2) * S + GRAB_ROOM;
+        const [x, z] = toScene(pen.x, pen.y);
+        pts.push(new T.Vector3(x + ux * half, 0, z + uz * half), new T.Vector3(x - ux * half, 0, z - uz * half));
+      }
+      return pts;
+    }
+
     const ease = (t) => t * t * (3 - 2 * t);
     const yAxis = new T.Vector3(0, 1, 0);
     function placeCamera() {
-      const pos = tightPos.clone().lerp(widePos, ease(zoom));
+      const near = target.clone().addScaledVector(camDir, Math.max(tightDist, followDist));
+      const pos = near.lerp(widePos, ease(zoom));
       if (intro < 1) {
         // Swing in from higher, further and round to one side.
         const k = 1 - ease(intro);
@@ -447,6 +488,11 @@
         }
         const dt = Math.min(0.1, Math.max(0, (now - lastNow) / 1000));
         lastNow = now;
+        // Zoom out just enough to keep every pen on the desk fully in view.
+        const pts = penPoints(pens);
+        const need = pts.length ? distanceToFit(pts) : tightDist;
+        const k = calm ? 1 : 1 - Math.exp(-dt * (need > followDist ? 6 : 2));
+        followDist += (need - followDist) * k;
         const goal = pens.some((p) => p.out) ? 1 : 0;
         zoom += (goal - zoom) * (calm ? 1 : 1 - Math.exp(-dt * 3.2));
         if (intro < 1) intro = Math.min(1, intro + dt / 1.8);

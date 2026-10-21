@@ -165,6 +165,186 @@
         ['🎭', 'Full of surprises', 'trickster'],
       ],
     },
+    {
+      q: 'The bell rings for break. You are…',
+      a: [
+        ['🏃', 'First out of the door', 'speedster'],
+        ['⚽', 'Captain of the football game', 'powerhouse'],
+        ['📖', 'Finishing your notes first, neatly', 'precision'],
+        ['🤹', 'Starting a game nobody has played before', 'trickster'],
+      ],
+    },
+    {
+      q: 'Pick a way to get to school:',
+      a: [
+        ['🛴', 'Scooter, full speed', 'speedster'],
+        ['🚌', 'The big school bus', 'powerhouse'],
+        ['🚶', 'Walk the same perfect route every day', 'precision'],
+        ['🛹', 'Skateboard tricks all the way', 'trickster'],
+      ],
+    },
+    {
+      q: 'Your pencil box is…',
+      a: [
+        ['⚡', 'Half-closed, you were in a rush', 'speedster'],
+        ['🧰', 'Huge and packed with everything', 'powerhouse'],
+        ['🗂️', 'Every pen in its own slot', 'precision'],
+        ['🎁', 'Full of surprises, even for you', 'trickster'],
+      ],
+    },
+    {
+      q: 'Pick a video game power-up:',
+      a: [
+        ['👟', 'Speed boots', 'speedster'],
+        ['🛡️', 'Giant shield', 'powerhouse'],
+        ['🎯', 'Auto-aim', 'precision'],
+        ['🌀', 'Teleport', 'trickster'],
+      ],
+    },
+    {
+      q: 'Your science project is about…',
+      a: [
+        ['🚀', 'The fastest rocket ever', 'speedster'],
+        ['🌋', 'A volcano that really erupts', 'powerhouse'],
+        ['🔬', 'A perfect, careful experiment', 'precision'],
+        ['🧲', 'Magnets that make things float', 'trickster'],
+      ],
+    },
+    {
+      q: 'Pick an animal sidekick:',
+      a: [
+        ['🐆', 'Cheetah', 'speedster'],
+        ['🐘', 'Elephant', 'powerhouse'],
+        ['🦉', 'Owl', 'precision'],
+        ['🦊', 'Fox', 'trickster'],
+      ],
+    },
+    {
+      q: 'In a group project you are the one who…',
+      a: [
+        ['⏱️', 'Gets it started right away', 'speedster'],
+        ['💪', 'Does the heavy lifting', 'powerhouse'],
+        ['✔️', 'Checks every detail', 'precision'],
+        ['💡', 'Has the wild idea that wins', 'trickster'],
+      ],
+    },
+    {
+      q: 'Rainy day, no going out. You…',
+      a: [
+        ['🏎️', 'Race paper boats in the drain', 'speedster'],
+        ['🏰', 'Build the biggest pillow fort', 'powerhouse'],
+        ['🧩', 'Finish a 1000-piece puzzle', 'precision'],
+        ['🎩', 'Learn a new magic trick', 'trickster'],
+      ],
+    },
+    {
+      q: 'Your favourite subject is…',
+      a: [
+        ['🏅', 'Sports', 'speedster'],
+        ['🏗️', 'Science: building things', 'powerhouse'],
+        ['➗', 'Maths', 'precision'],
+        ['🎨', 'Art', 'trickster'],
+      ],
+    },
+    {
+      q: 'Someone challenges you to arm wrestling. You…',
+      a: [
+        ['⚡', 'Slam it before they are ready', 'speedster'],
+        ['💪', 'Win with pure strength', 'powerhouse'],
+        ['🧠', 'Study their grip first', 'precision'],
+        ['😜', 'Make them laugh so they let go', 'trickster'],
+      ],
+    },
+    {
+      q: 'Pick a dream job:',
+      a: [
+        ['🏎️', 'Racing driver', 'speedster'],
+        ['🦸', 'Superhero', 'powerhouse'],
+        ['🩺', 'Surgeon', 'precision'],
+        ['🎬', 'Movie director', 'trickster'],
+      ],
+    },
+    {
+      q: 'Your phone battery is at 1%. You…',
+      a: [
+        ['💨', 'Send the message super fast', 'speedster'],
+        ['🔋', 'You always carry a huge power bank', 'powerhouse'],
+        ['📵', 'It never gets to 1%. You planned ahead.', 'precision'],
+        ['🔌', 'Find a charger in the weirdest place', 'trickster'],
+      ],
+    },
+    {
+      q: 'Pick a cricket shot:',
+      a: [
+        ['🏃', 'Quick single, run like the wind', 'speedster'],
+        ['💥', 'A huge six', 'powerhouse'],
+        ['🎯', 'A perfect cover drive', 'precision'],
+        ['🔄', 'A cheeky reverse sweep', 'trickster'],
+      ],
+    },
+    {
+      q: 'You find 100 taka on the road. You…',
+      a: [
+        ['🛍️', 'Spend it before lunch', 'speedster'],
+        ['🍗', 'Treat the whole class', 'powerhouse'],
+        ['🏦', 'Save it, exactly as planned', 'precision'],
+        ['🔁', 'Turn it into 200 somehow', 'trickster'],
+      ],
+    },
+    {
+      q: 'Pick a weather:',
+      a: [
+        ['🌬️', 'A strong fast wind', 'speedster'],
+        ['⛈️', 'A thunderstorm', 'powerhouse'],
+        ['☀️', 'A clear sunny day', 'precision'],
+        ['🌈', 'Sun and rain at once, with a rainbow', 'trickster'],
+      ],
+    },
+    {
+      q: 'In a race you would rather…',
+      a: [
+        ['🥇', 'Lead from the very start', 'speedster'],
+        ['🚧', 'Push through every obstacle', 'powerhouse'],
+        ['📐', 'Take the perfect line on every corner', 'precision'],
+        ['🗺️', 'Find a secret shortcut', 'trickster'],
+      ],
+    },
+    {
+      q: 'Your exam answer sheet looks like…',
+      a: [
+        ['⏩', 'Done first, handed in early', 'speedster'],
+        ['📄', 'Extra sheets: you wrote everything', 'powerhouse'],
+        ['🖋️', 'Neat, underlined, zero cuts', 'precision'],
+        ['✏️', 'Diagrams and doodles to explain it', 'trickster'],
+      ],
+    },
+    {
+      q: 'Pick a superhero gadget:',
+      a: [
+        ['🛼', 'Rocket skates', 'speedster'],
+        ['🔨', 'An unbreakable hammer', 'powerhouse'],
+        ['🏹', 'A bow that never misses', 'precision'],
+        ['🪞', 'A mirror that confuses enemies', 'trickster'],
+      ],
+    },
+    {
+      q: 'What makes you laugh most?',
+      a: [
+        ['🤣', 'Quick one-liners', 'speedster'],
+        ['😂', 'Big slapstick falls', 'powerhouse'],
+        ['😏', 'A clever, perfectly timed joke', 'precision'],
+        ['🙃', 'A prank that fools everyone', 'trickster'],
+      ],
+    },
+    {
+      q: 'Your pen runs out mid-exam. You…',
+      a: [
+        ['🏃', 'Grab a spare from your friend in a flash', 'speedster'],
+        ['💪', 'Press harder. It will write.', 'powerhouse'],
+        ['🖊️', 'You packed three spares. Obviously.', 'precision'],
+        ['✨', 'Shake it in a special way only you know', 'trickster'],
+      ],
+    },
   ];
   const QUIZ_LENGTH = 5;
 

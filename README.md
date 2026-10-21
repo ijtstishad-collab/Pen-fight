@@ -24,14 +24,16 @@ The desk and pens are rendered in 3D (three.js): each pen is a modelled barrel w
 clip, lighting and shadows, and knocked-off pens tumble to the floor. Browsers without WebGL get the flat 2D view,
 which you can also force with `?2d` on the URL.
 
-During play the camera frames the desk tightly; when a pen falls it pulls back to show it land, then moves in again.
+During play the camera frames the desk tightly, backing off whenever a pen hangs over the edge so it stays on screen
+and grabbable; when a pen falls it pulls back to show it land, then moves in again.
 
 **Watch an ad to revive.** When your pen gets knocked off, the result card offers a revive (once per round). It plays
 a Fresh Stationery commercial from [youtube.com/@freshstationery1296](https://www.youtube.com/@freshstationery1296);
 after you have actually watched 30% of it (skipping ahead doesn't count) you can claim the revive. The round result
 is undone, the fallen pen goes back where it was before the last flick and play continues. Leaving early gives no
-reward; if an ad won't load or stalls you can try another. The ad list is `VIDEOS` in `ads.js` and the threshold is
-`REWARD_SHARE`.
+reward; if an ad won't load or stalls you can try another. Nine channel ads rotate in a shuffled order remembered between
+visits (every ad plays before any repeats), and an ad that will not play inside the game is skipped automatically.
+The ad list is `VIDEOS` in `ads.js` and the threshold is `REWARD_SHARE`.
 
 **Profiles and points.** On first visit players create a profile: a name, an avatar and a unique player ID
 (like `PF-7KQ3-92XD`). Several players can share a device and switch between profiles. Playing against the computer
@@ -61,8 +63,8 @@ large. Drag to spin it any way, scroll or pinch to zoom, double-click to reset (
 bounce are now tuned so a round lasts about 7 flicks on average (13% one-shot), which a test keeps in check.
 
 **Play styles and pen stats.** Choosing a pen works like picking a class in a game. First pick a play style, then
-one of that style's pen lines, then a colour. Not sure? **✨ Find my style** asks five questions drawn at random
-from a pool of ten school-life scenarios (answers shuffled), then shows your style mix as percentages and recommends
+one of that style's pen lines, then a colour. Not sure? **✨ Find my style** asks five questions drawn from a pool of
+thirty school-life scenarios, with recently seen questions held back so each attempt is different (answers shuffled), then shows your style mix as percentages and recommends
 that style's signature pen.
 
 | Style | Lead stat | Pens | Plays like |

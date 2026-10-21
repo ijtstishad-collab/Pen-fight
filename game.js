@@ -274,8 +274,27 @@
       }
       return a;
     };
-    // A fresh random set of questions each time, answers in random order.
-    const deal = () => (questions = shuffle(window.QUIZ).slice(0, window.QUIZ_LENGTH || 5));
+    // A fresh set every time: questions not seen recently come first, answers in random order.
+    const SEEN_KEY = 'penfight.quizSeen';
+    const deal = () => {
+      let seen = [];
+      try {
+        seen = JSON.parse(localStorage.getItem(SEEN_KEY)) || [];
+      } catch (e) {
+        /* storage blocked */
+      }
+      const n = window.QUIZ_LENGTH || 5;
+      const fresh = shuffle(window.QUIZ.filter((q) => !seen.includes(q.q)));
+      const old = shuffle(window.QUIZ.filter((q) => seen.includes(q.q)));
+      questions = fresh.concat(old).slice(0, n);
+      // Remember roughly the last few rounds' questions; older ones come back into play.
+      seen = seen.filter((t) => !questions.some((q) => q.q === t)).concat(questions.map((q) => q.q));
+      try {
+        localStorage.setItem(SEEN_KEY, JSON.stringify(seen.slice(-(window.QUIZ.length - n))));
+      } catch (e) {
+        /* storage blocked */
+      }
+    };
 
     function close() {
       dlg.hidden = true;
